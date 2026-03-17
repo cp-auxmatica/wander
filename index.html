@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wander AI Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#2B4C5F',   /* Dark Navy from image */
+              coral: '#FFA590',  /* Peach/Coral from image */
+              cream: '#FDFBF7',  /* Off-white background */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    /* Global styles for hiding scrollbar cleanly */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    /* Simple fade-in animation */
+    @keyframes fadeInSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+      animation: fadeInSlideUp 0.4s ease-out forwards;
+    }
+
+    /* Toast & Modal transitions */
+    .transition-all-custom {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="bg-gray-200 font-sans min-h-screen flex justify-center items-center p-4 overflow-hidden">
+
+  <!-- Mobile Device Frame (Restored iPhone Look) -->
+  <div class="w-full max-w-[400px] h-[800px] bg-brand-cream rounded-[3rem] shadow-2xl relative overflow-hidden border-[8px] border-slate-800 flex flex-col">
+
+    <!-- Dynamic Island / Status Bar Spacer -->
+    <div class="h-12 w-full bg-transparent flex justify-center items-end pb-2 z-[90] absolute top-0 left-0 pointer-events-none">
+      <div class="w-32 h-6 bg-slate-900 rounded-full"></div>
+    </div>
+
+    <!-- AUTH SCREEN (Fake Sign-In) -->
+    <div id="auth-screen" class="absolute inset-0 bg-brand-cream z-[60] flex flex-col justify-center items-center p-6 transition-all-custom duration-500">
+        <div class="flex-1 flex flex-col justify-center items-center w-full">
+            <!-- CSS Logo mimicking the Image Chevron -->
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-12 h-20 bg-brand-dark rounded-tl-full rounded-br-full"></div>
+                <div class="w-12 h-20 bg-brand-coral rounded-tl-full rounded-br-full -ml-5 mix-blend-multiply opacity-95"></div>
+            </div>
+            <h1 class="text-5xl font-extrabold text-brand-dark mb-2 tracking-tight">Wander</h1>
+            <p class="text-slate-500 text-center text-sm mb-12 font-medium">The world's first active travel concierge.</p>
+        </div>
+        
+        <div class="w-full space-y-3 pb-8">
+            <button onclick="login()" class="w-full bg-brand-dark text-white rounded-2xl py-3.5 flex items-center justify-center gap-2 font-semibold shadow-md hover:bg-opacity-90 transition-colors">
+                <i class="ph-fill ph-apple-logo text-xl"></i> Continue with Apple
+            </button>
+            <button onclick="login()" class="w-full bg-white text-brand-dark border border-slate-200 rounded-2xl py-3.5 flex items-center justify-center gap-2 font-semibold shadow-sm hover:bg-slate-50 transition-colors">
+                <i class="ph-bold ph-envelope-simple text-xl"></i> Continue with Email
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="absolute top-14 left-0 right-0 px-4 z-[85] flex flex-col gap-2 pointer-events-none">
+      <!-- Interactive Crowd Alert Toast -->
+      <div id="toast-crowd" class="bg-brand-dark/95 backdrop-blur-md text-white border border-slate-700 rounded-2xl p-3 shadow-xl flex flex-col gap-2 transform -translate-y-[150%] opacity-0 transition-all-custom pointer-events-auto hidden">
+        <div class="flex items-start gap-3">
+            <div class="bg-brand-coral/20 p-1.5 rounded-xl">
+              <i class="ph-fill ph-users-three text-xl text-brand-coral"></i>
+            </div>
+            <div class="flex-1 pt-0.5">
+              <h4 class="text-sm font-bold text-slate-50">Thinkery is nearing capacity</h4>
+              <p class="text-xs text-slate-300 mt-0.5 leading-snug">Foot traffic is 80% higher than usual. Should I move this to 2:00 PM?</p>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-1" id="toast-crowd-actions">
+            <button onclick="acceptReschedule()" class="flex-1 bg-brand-coral hover:bg-opacity-90 text-brand-dark text-xs font-bold py-1.5 rounded-lg transition-colors">Yes, Reschedule</button>
+            <button onclick="closeToast('toast-crowd')" class="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-1.5 rounded-lg transition-colors">Keep Time</button>
+        </div>
+        <div id="toast-crowd-success" class="hidden items-center justify-center text-xs font-bold text-green-400 py-1.5">
+            <i class="ph-bold ph-check mr-1"></i> Rescheduled to 2:00 PM
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="main-app" class="flex-1 flex flex-col relative h-full">
+        <!-- MAIN SCROLLABLE ITINERARY (Home) -->
+        <div id="tab-home" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in block bg-brand-cream">
+          
+          <!-- Styled Hero Header -->
+          <div class="bg-brand-dark pt-14 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
+            <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
+               <div class="absolute -right-12 -top-12 w-48 h-48 border-[1px] border-white rounded-full"></div>
+               <div class="absolute -right-6 -top-6 w-36 h-36 border-[1px] border-white rounded-full"></div>
+               <div class="absolute right-0 top-0 w-24 h-24 border-[1px] border-white rounded-full"></div>
+               <div class="absolute right-6 top-6 w-12 h-12 border-[1px] border-white rounded-full"></div>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Today, Mar 24</h1>
+            <p class="text-brand-coral text-[10px] font-bold uppercase tracking-widest mt-1.5 relative z-10 flex items-center">
+                <i class="ph-fill ph-sun mr-1.5 text-sm"></i> Denver, CO • 68°
+            </p>
+          </div>
+
+          <!-- The Tighter, Compact Timeline -->
+          <div class="space-y-0 relative z-10 pt-3 px-4">
+            
+            <!-- Timeline Item 1: Active -->
+            <div class="flex items-stretch gap-3 group cursor-pointer">
+              <div class="w-12 text-right flex-shrink-0 pt-2.5">
+                <span class="text-[10px] font-bold text-brand-dark leading-none">9:00 AM</span>
+              </div>
+              <div class="relative flex flex-col items-center self-stretch">
+                <div class="w-2.5 h-2.5 bg-brand-dark rounded-full z-10 mt-2.5 shadow-[0_0_0_2px_#FDFBF7]"></div>
+                <div class="w-0.5 bg-brand-dark/20 flex-1 my-1"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="bg-white p-2.5 rounded-xl shadow-sm border-2 border-brand-dark/10 flex items-center gap-2">
+                  <div class="bg-brand-dark/5 p-1.5 rounded-lg text-brand-dark"><i class="ph-fill ph-coffee"></i></div>
+                  <div class="flex-1">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-brand-dark text-xs">Little Owl Coffee</h4>
+                        <span class="bg-brand-dark text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Now</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 flex items-center mt-0.5 font-medium">
+                      <i class="ph-bold ph-navigation-arrow mr-1"></i> 4 min walk
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 2: Up Next (Dynamic Target) -->
+            <div class="flex items-stretch gap-3 group cursor-pointer" id="museum-container">
+              <div class="w-12 text-right flex-shrink-0 pt-2.5">
+                <span class="text-[10px] font-bold text-slate-500 leading-none" id="museum-time">10:30 AM</span>
+              </div>
+              <div class="relative flex flex-col items-center self-stretch">
+                <div class="w-2.5 h-2.5 bg-slate-300 rounded-full z-10 mt-2.5 shadow-[0_0_0_2px_#FDFBF7]" id="museum-dot"></div>
+                <div class="w-0.5 bg-slate-200 flex-1 my-1"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-2 transition-all-custom" id="museum-block">
+                  <div class="bg-slate-50 p-1.5 rounded-lg text-slate-500"><i class="ph-fill ph-palette"></i></div>
+                  <div class="flex-1">
+                    <h4 class="font-bold text-slate-800 text-xs">The Thinkery</h4>
+                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Children's Museum</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Timeline Item 2.5: Lunch with Budget Warning -->
+            <div class="flex items-stretch gap-3 group cursor-pointer">
+              <div class="w-12 text-right flex-shrink-0 pt-2.5">
+                <span class="text-[10px] font-bold text-slate-500 leading-none">12:15 PM</span>
+              </div>
+              <div class="relative flex flex-col items-center self-stretch">
+                <div class="w-2.5 h-2.5 bg-slate-300 rounded-full z-10 mt-2.5 shadow-[0_0_0_2px_#FDFBF7]"></div>
+                <div class="w-0.5 bg-slate-200 flex-1 my-1"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
+                  <div class="flex items-center gap-2 mb-1.5">
+                      <div class="bg-brand-coral/10 p-1.5 rounded-lg text-brand-coral"><i class="ph-fill ph-hamburger"></i></div>
+                      <div class="flex-1">
+                          <h4 class="font-bold text-slate-800 text-xs">Denver Quick Serve</h4>
+                          <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Fast Casual Lunch</p>
+                      </div>
+                  </div>
+                  <!-- Active Concierge Pricing Alert -->
+                  <div class="bg-red-50 text-red-700 p-1.5 rounded-lg text-[9px] flex items-center font-bold mt-1">
+                    <i class="ph-fill ph-warning-circle mr-1.5 text-sm"></i> High cost alert: Users average ~$40/person here.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 3: Locked Block -->
+            <div class="flex items-stretch gap-3 group">
+              <div class="w-12 text-right flex-shrink-0 pt-2.5">
+                <span class="text-[10px] font-bold text-slate-400 leading-none">1:00 PM</span>
+              </div>
+              <div class="relative flex flex-col items-center self-stretch">
+                <div class="w-2.5 h-2.5 bg-slate-100 border border-slate-300 rounded-full z-10 mt-2.5 shadow-[0_0_0_2px_#FDFBF7]"></div>
+                <div class="w-0.5 bg-slate-200 flex-1 my-1"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="bg-slate-100 p-2.5 rounded-xl border border-slate-200/60 border-dashed opacity-80 flex items-center gap-2">
+                  <i class="ph-bold ph-lock text-slate-400"></i>
+                  <h4 class="font-bold text-slate-500 text-xs">Family Nap & Downtime</h4>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 4: Points Optimization -->
+            <div class="flex items-stretch gap-3 group cursor-pointer">
+              <div class="w-12 text-right flex-shrink-0 pt-2.5">
+                <span class="text-[10px] font-bold text-slate-500 leading-none">6:00 PM</span>
+              </div>
+              <div class="relative flex flex-col items-center self-stretch">
+                <div class="w-2.5 h-2.5 bg-slate-300 rounded-full z-10 mt-2.5 shadow-[0_0_0_2px_#FDFBF7]"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
+                  <div class="flex items-center gap-2 mb-1.5">
+                      <div class="bg-slate-50 p-1.5 rounded-lg text-slate-500"><i class="ph-fill ph-fork-knife"></i></div>
+                      <div class="flex-1">
+                          <h4 class="font-bold text-slate-800 text-xs">Terry Black's BBQ</h4>
+                          <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Estimated $30/person</p>
+                      </div>
+                  </div>
+                  <div class="bg-green-50 text-green-700 p-1.5 rounded-lg text-[9px] flex items-center font-bold">
+                    <i class="ph-fill ph-credit-card mr-1.5 text-sm"></i> Use Sapphire Reserve for 3x dining points.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- UPCOMING SECTION (Directly below today) -->
+          <div class="mt-4 pt-3 border-t border-slate-200/60 px-5">
+            <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Upcoming Trips & Events</h2>
+            
+            <div onclick="openTripDetail()" class="flex flex-col bg-white p-2.5 rounded-xl shadow-sm border border-brand-coral/30 mb-2 cursor-pointer hover:bg-brand-coral/5 transition-colors relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-8 h-8 bg-brand-coral/10 rounded-bl-full -z-10"></div>
+              <div class="flex items-center">
+                  <div class="bg-brand-coral/20 p-1.5 rounded-lg text-brand-dark mr-2.5">
+                    <i class="ph-fill ph-mountains text-sm"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-brand-dark text-xs">Trip to Denver</h4>
+                        <span class="bg-brand-coral text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Planning</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">March 23 – March 26 (4 days)</p>
+                  </div>
+                  <i class="ph-bold ph-caret-right text-slate-300 text-xs ml-1"></i>
+              </div>
+            </div>
+
+            <div class="flex items-center bg-white p-2.5 rounded-xl shadow-sm border border-slate-100 mb-2 cursor-pointer hover:bg-slate-50 transition-colors">
+              <div class="bg-brand-dark/10 p-1.5 rounded-lg text-brand-dark mr-2.5">
+                <i class="ph-fill ph-guitar-tilt text-sm"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-bold text-brand-dark text-xs">Van Halen Concert</h4>
+                <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Next Friday • Moody Center</p>
+              </div>
+              <i class="ph-bold ph-caret-right text-slate-300 text-xs"></i>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RADAR / VISION TAB CONTENT -->
+        <div id="tab-radar" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
+            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm">
+                <!-- Geometric pattern -->
+                <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
+                    <div class="absolute -left-10 -top-10 w-40 h-40 border-[1px] border-white rotate-45"></div>
+                    <div class="absolute -left-4 -top-4 w-28 h-28 border-[1px] border-white rotate-45"></div>
+                </div>
+                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Radar</h1>
+                <p class="text-brand-coral text-xs mt-1 font-medium relative z-10">Smart, family-friendly suggestions.</p>
+            </div>
+
+            <div class="px-5 mt-5">
+                
+                <!-- Section: Family Dining Insights -->
+                <div class="mb-5">
+                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-2.5 flex items-center">
+                        <i class="ph-fill ph-fork-knife mr-1.5"></i> Family Dining Insights
+                    </h2>
+                    <div class="space-y-2">
+                        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex items-center justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-800 text-xs">Steuben's Uptown</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Comfort food, great kids menu.</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">$$</span>
+                                <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Avg $18/pp</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex items-center justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-800 text-xs">Denver Central Market</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Gourmet food hall, perfect for picky eaters.</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">$$</span>
+                                <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Avg $20/pp</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Parks & Rec -->
+                <div class="mb-5">
+                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-2.5 flex items-center">
+                        <i class="ph-fill ph-tree-palm mr-1.5"></i> Curated Parks
+                    </h2>
+                    <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+                        <div class="min-w-[160px] bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+                            <div class="h-20 bg-green-100 relative p-2 flex items-end">
+                                <span class="bg-white/90 backdrop-blur-sm text-green-700 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide shadow-sm">Playground</span>
+                            </div>
+                            <div class="p-2.5">
+                                <h3 class="font-bold text-slate-800 text-xs">City Park</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Huge playgrounds & lakes.</p>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[160px] bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+                            <div class="h-20 bg-blue-100 relative p-2 flex items-end">
+                                <span class="bg-white/90 backdrop-blur-sm text-blue-700 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide shadow-sm">Quiet</span>
+                            </div>
+                            <div class="p-2.5">
+                                <h3 class="font-bold text-slate-800 text-xs">Washington Park</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Beautiful gardens and walking paths.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRIPS TAB CONTENT -->
+        <div id="tab-trips" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
+            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm">
+                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Your Trips</h1>
+            </div>
+
+            <div class="px-5 mt-5 space-y-3">
+                <!-- In Planning Trip -->
+                <div onclick="openTripDetail()" class="bg-white border-2 border-brand-coral/30 rounded-[1.25rem] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-12 h-12 bg-brand-coral/10 rounded-bl-full -z-10"></div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-brand-coral/20 text-brand-dark text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide flex items-center">
+                            <i class="ph-bold ph-pencil-simple mr-1"></i> Planning
+                        </span>
+                        <i class="ph-bold ph-dots-three text-slate-400"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-brand-dark">Trip to Denver</h3>
+                    <p class="text-xs text-slate-500 mt-0.5 flex items-center font-medium">
+                        <i class="ph-fill ph-calendar-blank mr-1 text-slate-400"></i> Mar 23 - 26 (4 days)
+                    </p>
+                    <div class="mt-3 flex gap-1.5">
+                        <div class="bg-slate-50 px-2 py-1 rounded-md text-[9px] font-bold text-slate-500 border border-slate-100">Flights booked</div>
+                        <div class="bg-brand-coral/10 px-2 py-1 rounded-md text-[9px] font-bold text-brand-dark border border-brand-coral/20 flex items-center">
+                            <i class="ph-bold ph-warning-circle mr-1"></i> Needs Hotel
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Planned Trip -->
+                <div class="bg-white border border-slate-100 rounded-[1.25rem] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
+                     <div class="absolute top-0 right-0 w-12 h-12 bg-green-50 rounded-bl-full -z-10"></div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-green-100 text-green-800 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide flex items-center">
+                            <i class="ph-bold ph-check-circle mr-1"></i> Planned
+                        </span>
+                         <i class="ph-bold ph-dots-three text-slate-400"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-brand-dark">Maldives Anniversary</h3>
+                    <p class="text-xs text-slate-500 mt-0.5 flex items-center font-medium">
+                        <i class="ph-fill ph-calendar-blank mr-1 text-slate-400"></i> Nov 1 - 8
+                    </p>
+                    <div class="mt-3 flex -space-x-1.5">
+                        <div class="w-6 h-6 rounded-full bg-brand-dark border-2 border-white text-white flex justify-center items-center text-[8px] font-bold z-20">You</div>
+                        <div class="w-6 h-6 rounded-full bg-brand-coral border-2 border-white text-brand-dark flex justify-center items-center text-[8px] font-bold z-10">S</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JOURNAL TAB CONTENT -->
+        <div id="tab-journal" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
+            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
+                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Journal</h1>
+                <p class="text-brand-coral text-xs mt-1 font-medium relative z-10">Private memories & Apple Journal sync.</p>
+            </div>
+            
+            <div class="px-5 mt-5 space-y-5">
+                <!-- New Entry Box -->
+                <div class="bg-amber-50 border border-amber-200/60 p-4 rounded-[1.25rem] shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5"><i class="ph-bold ph-book-open"></i> New Entry</h3>
+                    </div>
+                    <textarea placeholder="What's on your mind today?" class="w-full bg-transparent border-0 text-sm text-amber-900 placeholder:text-amber-700/50 outline-none resize-none font-medium h-16"></textarea>
+                    <div class="flex justify-end mt-2 pt-3 border-t border-amber-200/60">
+                        <button class="bg-brand-dark hover:bg-opacity-90 transition-colors text-white text-[10px] font-bold px-4 py-2 rounded-lg shadow-sm">Save Note</button>
+                    </div>
+                </div>
+
+                <!-- Feed -->
+                <div class="relative pl-6 border-l-2 border-slate-200/80 space-y-5 ml-2 mt-6">
+                    <!-- Entry 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-1 w-5 h-5 bg-brand-cream border-4 border-brand-dark rounded-full shadow-sm"></div>
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-dark/20 transition-colors">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100"><i class="ph-bold ph-calendar"></i> Mar 24</span>
+                                <span class="text-[9px] font-bold text-brand-dark bg-brand-coral/10 px-1.5 py-0.5 rounded">Trip to Denver</span>
+                            </div>
+                            <p class="text-xs font-medium text-slate-700 leading-relaxed">The kids absolutely loved the Thinkery today. Glad we moved it to the afternoon, it was much quieter. We ended up staying for almost 3 hours!</p>
+                        </div>
+                    </div>
+                    <!-- Entry 2 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-1 w-5 h-5 bg-brand-cream border-4 border-slate-300 rounded-full shadow-sm"></div>
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-dark/20 transition-colors">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100"><i class="ph-bold ph-calendar"></i> Mar 23</span>
+                                <span class="text-[9px] font-bold text-brand-dark bg-brand-coral/10 px-1.5 py-0.5 rounded">Trip to Denver</span>
+                            </div>
+                            <p class="text-xs font-medium text-slate-700 leading-relaxed">Flight landed on time. Denver is beautiful. Checked into the hotel and resting up before BBQ tonight.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sync Indicator -->
+                <div class="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold justify-center mt-6 pt-4 border-t border-slate-200/50">
+                    <i class="ph-fill ph-arrows-clockwise"></i> Synced securely with Apple Journal
+                </div>
+            </div>
+        </div>
+
+        <!-- FAMILY TAB CONTENT -->
+        <div id="tab-family" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
+            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm">
+                <!-- Geometric pattern -->
+                <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
+                    <div class="absolute right-0 top-0 w-32 h-32 border-[1px] border-white"></div>
+                    <div class="absolute right-4 top-4 w-24 h-24 border-[1px] border-white"></div>
+                </div>
+                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Your Family</h1>
+                <p class="text-brand-coral text-xs mt-1 font-medium relative z-10">On-device context to prevent burnout.</p>
+            </div>
+
+            <div class="px-5 mt-5 space-y-4">
+                
+                <!-- Profiles Section -->
+                <div class="bg-white rounded-[1.25rem] border border-slate-100 p-4 shadow-sm">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Profiles</h2>
+                    <div class="flex items-center justify-between border-b border-slate-50 pb-3 mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold">You</div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Primary Account</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-50 pb-3 mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-brand-coral text-brand-dark flex items-center justify-center font-bold">L</div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Leo</h3>
+                                <p class="text-xs text-slate-500 font-medium">Child • Age 4</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full text-brand-dark text-[10px] font-bold flex items-center justify-center py-2 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                        <i class="ph-bold ph-plus mr-1"></i> Add Family Member
+                    </button>
+                </div>
+
+                <!-- Preferences / Burnout Preventer Settings -->
+                <div class="bg-white rounded-[1.25rem] border border-slate-100 p-4 shadow-sm">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Burnout Prevention</h2>
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 flex items-center"><i class="ph-bold ph-lock mr-1 text-slate-400"></i> Protect Nap Time</h3>
+                            <p class="text-[10px] text-slate-500 mt-0.5 font-medium">AI will never schedule activities here.</p>
+                        </div>
+                        <!-- Toggle Switch (On) -->
+                        <div class="w-10 h-6 bg-green-500 rounded-full relative cursor-pointer">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100 mb-4 flex justify-between items-center cursor-pointer">
+                        <span class="text-xs font-bold text-slate-600">Locked Window</span>
+                        <span class="text-xs font-bold text-brand-dark">1:00 PM - 2:00 PM</span>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-50">
+                        <h3 class="text-sm font-bold text-slate-800 mb-1">Crowd Tolerance</h3>
+                        <p class="text-[10px] text-slate-500 mb-2 font-medium">How busy is too busy?</p>
+                        <div class="flex bg-slate-100 p-1 rounded-xl">
+                            <button class="flex-1 py-1.5 text-[10px] font-bold text-slate-500 rounded-lg">Low</button>
+                            <button class="flex-1 py-1.5 text-[10px] font-bold bg-white text-brand-dark rounded-lg shadow-sm">Medium</button>
+                            <button class="flex-1 py-1.5 text-[10px] font-bold text-slate-500 rounded-lg">High</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FLOATING ACTION BUTTON (+) -->
+        <button onclick="openPlanModal()" class="absolute bottom-20 right-5 w-14 h-14 bg-brand-coral text-brand-dark rounded-full shadow-lg shadow-brand-coral/30 flex justify-center items-center hover:bg-opacity-90 transition-colors z-30">
+            <i class="ph-bold ph-plus text-2xl"></i>
+        </button>
+
+        <!-- Bottom Navigation (5 Tabs) -->
+        <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 pt-2.5 pb-6 px-4 flex justify-between items-center z-40">
+          <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 transition-colors text-brand-dark w-12">
+            <i id="nav-icon-home" class="ph-fill ph-calendar-blank text-2xl"></i>
+            <span class="text-[8px] font-bold">Timeline</span>
+          </button>
+          
+          <button onclick="switchTab('radar')" id="nav-btn-radar" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
+            <i id="nav-icon-radar" class="ph ph-compass text-2xl"></i>
+            <span class="text-[8px] font-bold">Radar</span>
+          </button>
+          
+          <button onclick="switchTab('trips')" id="nav-btn-trips" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
+            <i id="nav-icon-trips" class="ph ph-suitcase text-2xl"></i>
+            <span class="text-[8px] font-bold">Trips</span>
+          </button>
+
+          <button onclick="switchTab('journal')" id="nav-btn-journal" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
+            <i id="nav-icon-journal" class="ph ph-book-open text-2xl"></i>
+            <span class="text-[8px] font-bold">Journal</span>
+          </button>
+
+          <button onclick="switchTab('family')" id="nav-btn-family" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
+            <i id="nav-icon-family" class="ph ph-users text-2xl"></i>
+            <span class="text-[8px] font-bold">Family</span>
+          </button>
+        </div>
+    </div>
+
+    <!-- NEW "PLAN A TRIP" MODAL -->
+    <div id="plan-modal" class="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm z-50 flex items-end opacity-0 pointer-events-none transition-all-custom">
+        <div id="plan-modal-content" class="bg-brand-cream w-full h-[70%] rounded-t-[2rem] p-5 transform translate-y-full transition-all-custom flex flex-col">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-bold text-brand-dark">What are we planning?</h2>
+                <button onclick="closePlanModal()" class="w-7 h-7 bg-white rounded-full flex justify-center items-center text-slate-500 hover:bg-slate-100 shadow-sm border border-slate-100">
+                    <i class="ph-bold ph-x text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Planning Options -->
+            <div class="grid grid-cols-2 gap-2.5 mb-5">
+                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
+                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
+                        <i class="ph-fill ph-airplane-tilt text-lg"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-xs">Vacation</span>
+                </button>
+                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
+                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
+                        <i class="ph-fill ph-ticket text-lg"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-xs">Event</span>
+                </button>
+                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
+                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
+                        <i class="ph-fill ph-map-pin text-lg"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-xs">Place</span>
+                </button>
+                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
+                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
+                        <i class="ph-fill ph-envelope-simple-open text-lg"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-xs">Sync Gmail</span>
+                </button>
+            </div>
+
+            <!-- AI Prompt Bar -->
+            <div class="mt-auto relative">
+                <input type="text" placeholder="Or just tell me: 'Trip to Denver'" class="w-full bg-white border border-slate-200 text-xs font-medium rounded-xl py-3 pl-3 pr-10 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-dark shadow-sm">
+                <button class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-brand-dark text-white rounded-lg flex justify-center items-center hover:bg-opacity-90">
+                    <i class="ph-bold ph-paper-plane-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAILED TRIP PLANNING SCREEN (Wanderlog Competitor) -->
+    <div id="trip-detail-screen" class="absolute inset-0 bg-brand-cream z-[80] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out hide-scrollbar overflow-y-auto border-x border-slate-300">
+       
+       <!-- Header with Image (Shorter, snaps to top under Dynamic Island) -->
+       <div class="relative h-32 bg-brand-dark shrink-0 rounded-b-2xl overflow-hidden">
+           <img src="https://images.unsplash.com/photo-1602800458591-eddda28a498b?auto=format&fit=crop&w=400&q=80" alt="Denver Skyline" class="w-full h-full object-cover opacity-50 mix-blend-luminosity" />
+           <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent"></div>
+           
+           <!-- Top Nav Bar (Sits below Dynamic Island) -->
+           <div class="absolute top-12 left-0 right-0 px-4 flex justify-between items-center text-white z-10">
+               <div class="flex items-center gap-2">
+                   <button onclick="closeTripDetail()" class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors"><i class="ph-bold ph-caret-left text-sm"></i></button>
+                   <!-- Added Home Button here for constant navigation access -->
+                   <button onclick="goHomeFromTrip()" class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors"><i class="ph-fill ph-house text-sm"></i></button>
+               </div>
+               <div class="flex items-center gap-2">
+                   <button class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors" title="Undo"><i class="ph-bold ph-arrow-u-up-left text-sm"></i></button>
+                   <button class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors" title="Save/Share"><i class="ph-bold ph-export text-sm"></i></button>
+               </div>
+           </div>
+           
+           <!-- Title & Meta -->
+           <div class="absolute bottom-3 left-4 right-4 text-white z-10">
+               <h1 class="text-xl font-extrabold shadow-sm leading-tight tracking-tight">Trip to Denver</h1>
+               <div class="flex items-center justify-between mt-0.5">
+                   <p class="text-[10px] font-bold opacity-100 text-brand-coral bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-md">March 23 – March 26</p>
+                   <div class="flex items-center gap-2">
+                     <button class="bg-white text-brand-dark text-[9px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">Get App</button>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="p-4 space-y-6 pb-12">
+           
+           <!-- Explore & Recommendations Section -->
+           <div>
+               <h2 class="text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wider">Explore & Recommendations</h2>
+               <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 -mx-4 px-4">
+                   <!-- Guide Cards -->
+                   <div class="min-w-[130px] bg-white border border-slate-100 p-2.5 rounded-2xl shadow-sm cursor-pointer hover:border-brand-dark/30">
+                       <div class="h-14 bg-slate-50 rounded-xl mb-2 flex items-center justify-center text-brand-dark"><i class="ph-fill ph-map-pin text-2xl"></i></div>
+                       <p class="text-[10px] font-bold text-slate-800 leading-tight">Best attractions in Denver</p>
+                       <p class="text-[8px] text-slate-500 mt-1 flex items-center font-medium"><i class="ph-fill ph-google-logo mr-1"></i> Google Experts</p>
+                   </div>
+                   <div class="min-w-[130px] bg-white border border-slate-100 p-2.5 rounded-2xl shadow-sm cursor-pointer hover:border-brand-dark/30">
+                       <div class="h-14 bg-brand-coral/10 rounded-xl mb-2 flex items-center justify-center text-brand-coral"><i class="ph-fill ph-brandy text-2xl"></i></div>
+                       <p class="text-[10px] font-bold text-slate-800 leading-tight">Denver Whiskey Scene</p>
+                       <p class="text-[8px] text-slate-500 mt-1 font-medium">by Janet Kar Wang</p>
+                   </div>
+                   <div class="min-w-[130px] bg-white border border-slate-100 p-2.5 rounded-2xl shadow-sm cursor-pointer hover:border-brand-dark/30">
+                       <div class="h-14 bg-green-50 rounded-xl mb-2 flex items-center justify-center text-green-600"><i class="ph-fill ph-baby text-2xl"></i></div>
+                       <p class="text-[10px] font-bold text-slate-800 leading-tight">Denver with Kids Guide</p>
+                       <p class="text-[8px] text-slate-500 mt-1 font-medium">by Erin Nicole</p>
+                   </div>
+               </div>
+           </div>
+
+           <!-- Logistics & Budget Widget -->
+           <div>
+               <h2 class="text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wider">Logistics & Budget</h2>
+               <div class="bg-white border border-slate-100 rounded-[1.25rem] p-3 shadow-sm space-y-3">
+                   
+                   <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                       <div class="flex items-center gap-2 text-brand-dark">
+                           <div class="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center"><i class="ph-fill ph-airplane-tilt text-xs"></i></div>
+                           <span class="text-xs font-bold">Flight</span>
+                       </div>
+                       <span class="text-[10px] text-slate-800 font-medium bg-slate-50 px-2 py-0.5 rounded-md">UA452 • Mar 23</span>
+                   </div>
+
+                   <div class="flex flex-col border-b border-slate-50 pb-2">
+                       <div class="flex items-center justify-between mb-1.5">
+                           <div class="flex items-center gap-2 text-brand-dark">
+                               <div class="w-6 h-6 bg-brand-coral/20 rounded-lg flex items-center justify-center"><i class="ph-fill ph-bed text-brand-coral text-xs"></i></div>
+                               <span class="text-xs font-bold">Lodging</span>
+                           </div>
+                           <i class="ph-fill ph-warning-circle text-brand-coral text-sm"></i>
+                       </div>
+                       <div class="bg-brand-coral/10 p-2 rounded-xl border border-brand-coral/20 flex flex-col gap-2">
+                           <p class="text-[9px] text-brand-dark font-bold leading-tight">No lodging booked for the Mar 23–26 window.</p>
+                           <button class="bg-brand-coral hover:bg-opacity-90 text-brand-dark text-[9px] font-bold py-1.5 rounded-lg shadow-sm transition-colors w-full text-center uppercase tracking-wide">Book hotels</button>
+                       </div>
+                   </div>
+
+                   <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                       <div class="flex items-center gap-2 text-brand-dark">
+                           <div class="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center"><i class="ph-fill ph-car text-xs"></i></div>
+                           <span class="text-xs font-bold">Rental car</span>
+                       </div>
+                       <button class="text-[10px] bg-white border border-slate-200 hover:bg-slate-50 px-2 py-1 rounded-md text-slate-600 font-bold transition-colors">Add info</button>
+                   </div>
+
+                   <!-- Interactive Budget Tracker -->
+                   <div class="pt-2">
+                       <div class="flex justify-between items-end mb-2">
+                           <div class="flex items-center gap-2 text-brand-dark">
+                               <div class="w-6 h-6 bg-green-50 rounded-lg flex items-center justify-center"><i class="ph-fill ph-wallet text-green-600 text-xs"></i></div>
+                               <span class="text-xs font-bold">Budget Tracker</span>
+                           </div>
+                           <span class="text-[10px] font-bold text-slate-500">$180 spent of $1,000</span>
+                       </div>
+                       <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
+                           <div class="h-full bg-brand-coral w-[18%] rounded-full"></div>
+                       </div>
+                       <div class="space-y-1.5 px-1">
+                           <div class="flex justify-between items-center text-[10px]">
+                               <span class="text-slate-600 flex items-center"><i class="ph-fill ph-fork-knife mr-1.5 text-slate-400"></i> Food & Dining</span>
+                               <span class="font-bold text-slate-800">$180.00</span>
+                           </div>
+                           <div class="flex justify-between items-center text-[10px] opacity-60">
+                               <span class="text-slate-600 flex items-center"><i class="ph-fill ph-airplane-tilt mr-1.5 text-slate-400"></i> Flights (Pending)</span>
+                               <span class="font-bold text-slate-800">$0.00</span>
+                           </div>
+                       </div>
+                       <button class="mt-3 bg-brand-dark/5 hover:bg-brand-dark/10 text-brand-dark text-[9px] font-bold py-1.5 rounded-lg transition-colors w-full text-center uppercase tracking-wide">Log an Expense</button>
+                   </div>
+
+               </div>
+           </div>
+
+           <!-- Places to Visit List -->
+           <div>
+               <div class="flex justify-between items-center mb-2.5">
+                   <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Places to Visit</h2>
+                   <button class="text-brand-dark text-[10px] font-bold flex items-center"><i class="ph-bold ph-plus mr-0.5"></i> Add a place</button>
+               </div>
+               <div class="flex flex-wrap gap-2">
+                   <span class="bg-white border border-slate-200 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center cursor-pointer hover:border-slate-300"><i class="ph-fill ph-leaf text-green-500 mr-1.5 text-xs"></i> Denver Botanic Gardens</span>
+                   <span class="bg-white border border-slate-200 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center cursor-pointer hover:border-slate-300"><i class="ph-fill ph-baseball text-red-500 mr-1.5 text-xs"></i> Coors Field</span>
+                   <span class="bg-white border border-slate-200 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center cursor-pointer hover:border-slate-300"><i class="ph-fill ph-fork-knife text-brand-coral mr-1.5 text-xs"></i> Steuben's ($18/pp)</span>
+               </div>
+           </div>
+
+           <!-- Itinerary Columns -->
+           <div>
+               <div class="flex items-center justify-between mb-2.5">
+                   <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Itinerary</h2>
+                   <span class="bg-brand-coral text-brand-dark text-[8px] px-1.5 py-0.5 rounded uppercase font-bold shadow-sm flex items-center"><i class="ph-fill ph-lightning mr-0.5"></i> Pro Route Opt</span>
+               </div>
+               
+               <div class="space-y-3">
+                   <!-- Day 1 -->
+                   <div class="bg-white border border-slate-100 rounded-[1.25rem] p-3 shadow-sm">
+                       <div class="flex justify-between items-center border-b border-slate-50 pb-2 mb-2">
+                           <h3 class="text-xs font-bold text-brand-dark">Monday, March 23</h3>
+                           <button class="text-[9px] font-bold text-brand-dark bg-slate-50 border border-slate-100 px-2 py-1 rounded-md hover:bg-slate-100 transition-colors">Auto-fill day</button>
+                       </div>
+                       <div class="flex items-center justify-between p-2 bg-slate-50 rounded-xl border border-slate-100 border-dashed mb-2">
+                           <div class="flex items-center gap-2">
+                               <i class="ph-fill ph-airplane-landing text-slate-400"></i>
+                               <span class="text-[10px] font-bold text-slate-600">Arrive DEN 10:45 AM</span>
+                           </div>
+                       </div>
+                       <p class="text-[10px] text-slate-400 font-medium italic text-center py-1">No plans yet. Drag places here.</p>
+                   </div>
+                   
+                   <!-- Day 2 -->
+                   <div class="bg-white border border-slate-100 rounded-[1.25rem] p-3 shadow-sm">
+                       <div class="flex justify-between items-center border-b border-slate-50 pb-2 mb-2">
+                           <h3 class="text-xs font-bold text-brand-dark">Tuesday, March 24</h3>
+                           <button class="text-[9px] font-bold text-brand-dark bg-slate-50 border border-slate-100 px-2 py-1 rounded-md hover:bg-slate-100 transition-colors">Auto-fill day</button>
+                       </div>
+                       <p class="text-[10px] text-slate-400 font-medium italic text-center py-2">No plans yet. Drag places here.</p>
+                   </div>
+               </div>
+           </div>
+       </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Login Logic
+    function login() {
+        const authScreen = document.getElementById('auth-screen');
+        authScreen.classList.add('opacity-0', 'pointer-events-none');
+        
+        // Trigger the active concierge toast simulation after a brief delay once logged in
+        setTimeout(() => {
+            showToast('toast-crowd');
+        }, 1200);
+    }
+
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      document.getElementById('tab-home').classList.add('hidden');
+      document.getElementById('tab-home').classList.remove('block');
+      document.getElementById('tab-radar').classList.add('hidden');
+      document.getElementById('tab-radar').classList.remove('block');
+      document.getElementById('tab-trips').classList.add('hidden');
+      document.getElementById('tab-trips').classList.remove('block');
+      document.getElementById('tab-journal').classList.add('hidden');
+      document.getElementById('tab-journal').classList.remove('block');
+      document.getElementById('tab-family').classList.add('hidden');
+      document.getElementById('tab-family').classList.remove('block');
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('block');
+
+      const navBtns = ['home', 'radar', 'trips', 'journal', 'family'];
+      navBtns.forEach(btn => {
+        document.getElementById(`nav-btn-${btn}`).classList.remove('text-brand-dark');
+        document.getElementById(`nav-btn-${btn}`).classList.add('text-slate-400');
+        
+        const icon = document.getElementById(`nav-icon-${btn}`);
+        icon.classList.remove('ph-fill');
+        icon.classList.add('ph');
+      });
+
+      document.getElementById(`nav-btn-${tabId}`).classList.add('text-brand-dark');
+      document.getElementById(`nav-btn-${tabId}`).classList.remove('text-slate-400');
+      
+      const activeIcon = document.getElementById(`nav-icon-${tabId}`);
+      activeIcon.classList.remove('ph');
+      activeIcon.classList.add('ph-fill');
+    }
+
+    // Modal Logic
+    function openPlanModal() {
+        const modal = document.getElementById('plan-modal');
+        const content = document.getElementById('plan-modal-content');
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('translate-y-full');
+        content.classList.add('translate-y-0');
+    }
+
+    function closePlanModal() {
+        const modal = document.getElementById('plan-modal');
+        const content = document.getElementById('plan-modal-content');
+        content.classList.remove('translate-y-0');
+        content.classList.add('translate-y-full');
+        setTimeout(() => {
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }, 300);
+    }
+
+    // Detailed Trip Screen Logic
+    function openTripDetail() {
+        document.getElementById('trip-detail-screen').classList.remove('translate-x-full');
+    }
+
+    function closeTripDetail() {
+        document.getElementById('trip-detail-screen').classList.add('translate-x-full');
+    }
+    
+    function goHomeFromTrip() {
+        closeTripDetail();
+        switchTab('home');
+    }
+
+    // Toast Notification Logic
+    function showToast(toastId) {
+      const el = document.getElementById(toastId);
+      el.classList.remove('hidden');
+      setTimeout(() => {
+        el.classList.remove('-translate-y-[150%]', 'opacity-0');
+        el.classList.add('translate-y-0', 'opacity-100');
+      }, 10);
+    }
+
+    function closeToast(toastId) {
+      const el = document.getElementById(toastId);
+      el.classList.remove('translate-y-0', 'opacity-100');
+      el.classList.add('-translate-y-[150%]', 'opacity-0');
+      setTimeout(() => {
+        el.classList.add('hidden');
+      }, 400); 
+    }
+
+    // Interactive Reschedule Logic
+    function acceptReschedule() {
+        // Handle Toast UI
+        document.getElementById('toast-crowd-actions').classList.add('hidden');
+        document.getElementById('toast-crowd-success').classList.remove('hidden');
+        document.getElementById('toast-crowd-success').classList.add('flex');
+
+        // Dynamically update the timeline entry
+        const timeLabel = document.getElementById('museum-time');
+        timeLabel.innerText = '2:00 PM';
+        timeLabel.classList.replace('text-slate-500', 'text-brand-coral');
+        
+        const dot = document.getElementById('museum-dot');
+        dot.classList.replace('bg-slate-300', 'bg-brand-coral');
+
+        const museumBlock = document.getElementById('museum-block');
+        museumBlock.classList.replace('bg-white', 'bg-brand-coral/10');
+        museumBlock.classList.replace('border-slate-100', 'border-brand-coral/30');
+        
+        museumBlock.innerHTML = `
+            <div class="bg-brand-coral/20 p-1.5 rounded-lg text-brand-dark"><i class="ph-fill ph-users-three"></i></div>
+            <div class="flex-1">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-bold text-brand-dark text-xs">The Thinkery</h4>
+                    <span class="bg-brand-coral text-white text-[8px] font-bold px-1 py-0.5 rounded uppercase">Moved</span>
+                </div>
+                <p class="text-[10px] text-slate-600 mt-0.5 font-medium">Children's Museum</p>
+            </div>
+        `;
+
+        setTimeout(() => {
+            closeToast('toast-crowd');
+        }, 2000);
+    }
+  </script>
+</body>
+</html>
