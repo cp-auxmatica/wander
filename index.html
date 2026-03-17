@@ -11,9 +11,16 @@
         extend: {
           colors: {
             brand: {
-              dark: '#2B4C5F',   /* Dark Navy from image */
-              coral: '#FFA590',  /* Peach/Coral from image */
-              cream: '#F9FAFB',  /* Light gray/off-white background */
+              /* Colors mapped from user's JSX files */
+              bg: '#fdfbf7',       /* --bg */
+              bg1: '#f5f3ef',      /* --bg1 */
+              bg2: '#ebe7e0',      /* --bg2 */
+              t1: '#1a1208',       /* --t1 (Espresso) */
+              t2: '#4a3d31',       /* --t2 */
+              t3: '#8c7d6e',       /* --t3 */
+              accent: '#ff5722',   /* --accent (Orange/Amber) */
+              accentSoft: '#ff572215',
+              border: '#e0dbd3',   /* --border */
             }
           }
         }
@@ -22,6 +29,9 @@
   </script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
+    body {
+        background-color: #e5e5e5;
+    }
     /* Global styles for hiding scrollbar cleanly */
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
@@ -46,34 +56,29 @@
     }
   </style>
 </head>
-<body class="bg-gray-200 font-sans min-h-screen sm:flex sm:justify-center sm:items-start overflow-hidden m-0 p-0">
+<body class="font-sans min-h-screen sm:flex sm:justify-center sm:items-start overflow-hidden m-0 p-0 text-brand-t1">
 
-  <!-- Mobile Device Frame (Fills screen on mobile, framed on desktop) -->
-  <div class="fixed inset-0 sm:relative sm:inset-auto sm:w-full sm:h-[100dvh] sm:max-w-[420px] bg-brand-cream overflow-hidden flex flex-col sm:shadow-2xl sm:border-x sm:border-slate-300">
+  <!-- Mobile Device Frame -->
+  <div class="fixed inset-0 sm:relative sm:inset-auto sm:w-full sm:h-[100dvh] sm:max-w-[420px] bg-brand-bg overflow-hidden flex flex-col sm:shadow-2xl sm:border-x sm:border-brand-border">
 
     <!-- Dynamic Island / Status Bar Spacer (Desktop Only) -->
     <div class="hidden sm:flex h-12 w-full bg-transparent justify-center items-end pb-2 z-[90] absolute top-0 left-0 pointer-events-none">
-      <div class="w-32 h-6 bg-slate-900 rounded-full"></div>
+      <div class="w-32 h-6 bg-black rounded-full"></div>
     </div>
 
     <!-- AUTH SCREEN (Fake Sign-In) -->
-    <div id="auth-screen" class="absolute inset-0 bg-white z-[60] flex flex-col justify-center items-center p-6 transition-all-custom duration-500">
+    <div id="auth-screen" class="absolute inset-0 bg-brand-bg z-[60] flex flex-col justify-center items-center p-6 transition-all-custom duration-500">
         <div class="flex-1 flex flex-col justify-center items-center w-full">
-            <!-- CSS Logo mimicking the Image Chevron -->
-            <div class="flex items-center justify-center mb-6">
-                <div class="w-12 h-20 bg-brand-dark rounded-tl-full rounded-br-full"></div>
-                <div class="w-12 h-20 bg-brand-coral rounded-tl-full rounded-br-full -ml-5 mix-blend-multiply opacity-95"></div>
+            <div class="w-20 h-20 bg-brand-accent rounded-[2rem] flex items-center justify-center mb-6 shadow-lg shadow-brand-accent/30 text-white">
+                <i class="ph-fill ph-paper-plane-tilt text-4xl"></i>
             </div>
-            <h1 class="text-5xl font-extrabold text-brand-dark mb-2 tracking-tight">Wander</h1>
-            <p class="text-slate-500 text-center text-sm mb-12 font-medium">The world's first active travel concierge.</p>
+            <h1 class="text-5xl font-extrabold text-brand-t1 mb-2 tracking-tight">Wander</h1>
+            <p class="text-brand-t3 text-center text-sm mb-12 font-medium">The world's first active travel concierge.</p>
         </div>
         
         <div class="w-full space-y-3 pb-8">
-            <button onclick="login()" class="w-full bg-brand-dark text-white rounded-2xl py-3.5 flex items-center justify-center gap-2 font-semibold shadow-md hover:bg-opacity-90 transition-colors">
+            <button onclick="login()" class="w-full bg-brand-t1 text-white rounded-[16px] py-4 flex items-center justify-center gap-2 font-bold shadow-md hover:bg-opacity-90 transition-colors">
                 <i class="ph-fill ph-apple-logo text-xl"></i> Continue with Apple
-            </button>
-            <button onclick="login()" class="w-full bg-white text-brand-dark border border-slate-200 rounded-2xl py-3.5 flex items-center justify-center gap-2 font-semibold shadow-sm hover:bg-slate-50 transition-colors">
-                <i class="ph-bold ph-envelope-simple text-xl"></i> Continue with Email
             </button>
         </div>
     </div>
@@ -81,19 +86,19 @@
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="absolute top-14 left-0 right-0 px-4 z-[85] flex flex-col gap-2 pointer-events-none">
       <!-- Interactive Crowd Alert Toast -->
-      <div id="toast-crowd" class="bg-brand-dark/95 backdrop-blur-md text-white border border-slate-700 rounded-2xl p-3 shadow-xl flex flex-col gap-2 transform -translate-y-[150%] opacity-0 transition-all-custom pointer-events-auto hidden">
+      <div id="toast-crowd" class="bg-brand-t1/95 backdrop-blur-md text-white border border-brand-t2 rounded-[20px] p-3 shadow-xl flex flex-col gap-2 transform -translate-y-[150%] opacity-0 transition-all-custom pointer-events-auto hidden">
         <div class="flex items-start gap-3">
-            <div class="bg-brand-coral/20 p-1.5 rounded-xl">
-              <i class="ph-fill ph-users-three text-xl text-brand-coral"></i>
+            <div class="bg-brand-accent/20 p-1.5 rounded-[12px]">
+              <i class="ph-fill ph-users-three text-xl text-brand-accent"></i>
             </div>
             <div class="flex-1 pt-0.5">
-              <h4 class="text-sm font-bold text-slate-50">Thinkery is nearing capacity</h4>
-              <p class="text-xs text-slate-300 mt-0.5 leading-snug">Foot traffic is 80% higher than usual. Should I move this to 2:00 PM?</p>
+              <h4 class="text-sm font-bold text-white">Thinkery is nearing capacity</h4>
+              <p class="text-xs text-brand-bg2 mt-0.5 leading-snug">Foot traffic is 80% higher than usual. Should I move this to 2:00 PM?</p>
             </div>
         </div>
         <div class="flex gap-2 mt-1" id="toast-crowd-actions">
-            <button onclick="acceptReschedule()" class="flex-1 bg-brand-coral hover:bg-opacity-90 text-brand-dark text-xs font-bold py-1.5 rounded-lg transition-colors">Yes, Reschedule</button>
-            <button onclick="closeToast('toast-crowd')" class="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-1.5 rounded-lg transition-colors">Keep Time</button>
+            <button onclick="acceptReschedule()" class="flex-1 bg-brand-accent hover:bg-opacity-90 text-white text-xs font-bold py-2 rounded-[12px] transition-colors">Yes, Reschedule</button>
+            <button onclick="closeToast('toast-crowd')" class="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 rounded-[12px] transition-colors">Keep Time</button>
         </div>
         <div id="toast-crowd-success" class="hidden items-center justify-center text-xs font-bold text-green-400 py-1.5">
             <i class="ph-bold ph-check mr-1"></i> Rescheduled to 2:00 PM
@@ -103,59 +108,50 @@
 
     <!-- MAIN APP WRAPPER -->
     <div id="main-app" class="flex-1 flex flex-col relative h-full pt-0">
+        
         <!-- MAIN SCROLLABLE ITINERARY (Home) -->
-        <div id="tab-home" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in block bg-brand-cream">
+        <div id="tab-home" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in block bg-brand-bg">
           
-          <!-- Styled Hero Header -->
-          <div class="bg-brand-dark pt-12 sm:pt-14 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
-            <!-- Geometric background accents -->
-            <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
-               <div class="absolute -right-12 -top-12 w-48 h-48 border-[1px] border-white rounded-full"></div>
-               <div class="absolute -right-6 -top-6 w-36 h-36 border-[1px] border-white rounded-full"></div>
-               <div class="absolute right-0 top-0 w-24 h-24 border-[1px] border-white rounded-full"></div>
-               <div class="absolute right-6 top-6 w-12 h-12 border-[1px] border-white rounded-full"></div>
-            </div>
-            <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Timeline</h1>
-            <p class="text-brand-coral text-[10px] font-bold uppercase tracking-widest mt-1.5 relative z-10 flex items-center">
+          <!-- Header matching JSX files -->
+          <div class="pt-12 sm:pt-14 pb-4 px-5 relative z-0 bg-brand-bg border-b border-brand-border">
+            <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight">Timeline</h1>
+            <p class="text-brand-accent text-[11px] font-bold uppercase tracking-widest mt-0.5 flex items-center">
                 <i class="ph-fill ph-sun mr-1.5 text-sm"></i> Austin, TX • 72°
             </p>
           </div>
 
-          <!-- Compressed Timeline (Matching image_222144.png precisely) -->
           <div class="px-5 mt-5">
               
-              <!-- Day Header -->
-              <div class="flex items-center gap-3 mb-2">
-                  <div class="border border-slate-200 rounded-lg p-1 text-center bg-white shadow-sm flex flex-col justify-center w-11 h-11 shrink-0">
-                      <span class="text-[9px] font-bold text-amber-500 uppercase leading-none mb-0.5">Mar</span>
-                      <span class="text-[15px] font-extrabold text-slate-800 leading-none">24</span>
+              <!-- Day Header (From TimelineScreen.jsx) -->
+              <div class="flex items-center gap-3 mb-4">
+                  <div class="border border-brand-border rounded-[12px] p-1 text-center bg-brand-bg1 shadow-sm flex flex-col justify-center w-12 h-12 shrink-0">
+                      <span class="text-[10px] font-bold text-brand-accent uppercase leading-none mb-0.5">Mar</span>
+                      <span class="text-[16px] font-extrabold text-brand-t1 leading-none">24</span>
                   </div>
                   <div>
-                      <h2 class="text-[14px] font-extrabold text-slate-800 leading-tight">Day 1</h2>
-                      <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Tue, Mar 24 <span class="text-slate-300 mx-1">|</span> Austin, TX</p>
+                      <h2 class="text-[16px] font-extrabold text-brand-t1 leading-tight">Day 1</h2>
+                      <p class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider">Tue, Mar 24 <span class="text-brand-border mx-1">|</span> Austin, TX</p>
                   </div>
               </div>
 
               <!-- List Items Container -->
               <div class="relative pl-[56px] mt-1">
                   <!-- Continuous Vertical Line -->
-                  <div class="absolute left-[68px] top-3 bottom-6 w-[2px] bg-slate-200 z-0"></div>
+                  <div class="absolute left-[68px] top-3 bottom-6 w-[2px] bg-brand-border z-0"></div>
 
                   <!-- Timeline Item: Breakfast -->
                   <div class="relative flex items-start group cursor-pointer">
-                      <!-- Time (Left aligned, tightly packed) -->
                       <div class="absolute left-[-56px] w-[45px] text-right top-[10px]">
-                          <span class="text-[10px] font-bold text-slate-800 leading-[1.1] block">9:00<br/>AM</span>
+                          <span class="text-[11px] font-bold text-brand-t1 leading-[1.1] block">9:00<br/>AM</span>
                       </div>
-                      <!-- Dot on line -->
-                      <div class="absolute left-[13px] top-[14px] w-2 h-2 bg-red-500 rounded-full ring-[4px] ring-brand-cream z-10"></div>
-                      <!-- Content Row -->
-                      <div class="pl-8 flex items-center gap-3 w-full border-b border-slate-200/60 pb-3 mb-3">
-                          <div class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                              <i class="ph-fill ph-coffee text-[14px]"></i>
+                      <div class="absolute left-[13px] top-[14px] w-2.5 h-2.5 bg-red-500 rounded-full ring-[4px] ring-brand-bg z-10"></div>
+                      <div class="pl-8 flex items-start gap-3 w-full border-b border-brand-border pb-4 mb-4">
+                          <div class="w-10 h-10 rounded-[14px] bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                              <i class="ph-fill ph-coffee text-[18px]"></i>
                           </div>
-                          <div class="flex-1 pr-2">
-                              <h4 class="font-bold text-slate-800 text-[13px] truncate">Breakfast - Veracruz</h4>
+                          <div class="flex-1 pr-2 pt-1">
+                              <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider mb-0.5 block">Starts</span>
+                              <h4 class="font-bold text-brand-t1 text-[14px] leading-tight">Breakfast - Veracruz</h4>
                           </div>
                       </div>
                   </div>
@@ -163,15 +159,16 @@
                   <!-- Timeline Item: Event -->
                   <div class="relative flex items-start group cursor-pointer" id="museum-container">
                       <div class="absolute left-[-56px] w-[45px] text-right top-[10px]">
-                          <span class="text-[10px] font-bold text-slate-800 leading-[1.1] block" id="museum-time">10:30<br/>AM</span>
+                          <span class="text-[11px] font-bold text-brand-t1 leading-[1.1] block" id="museum-time">10:30<br/>AM</span>
                       </div>
-                      <div class="absolute left-[13px] top-[14px] w-2 h-2 bg-green-500 rounded-full ring-[4px] ring-brand-cream z-10" id="museum-dot"></div>
-                      <div class="pl-8 flex items-center gap-3 w-full border-b border-slate-200/60 pb-3 mb-3 transition-colors" id="museum-block">
-                          <div class="w-8 h-8 rounded-full bg-green-50 text-green-500 flex items-center justify-center shrink-0">
-                              <i class="ph-fill ph-ticket text-[14px]"></i>
+                      <div class="absolute left-[13px] top-[14px] w-2.5 h-2.5 bg-green-500 rounded-full ring-[4px] ring-brand-bg z-10" id="museum-dot"></div>
+                      <div class="pl-8 flex items-start gap-3 w-full border-b border-brand-border pb-4 mb-4 transition-colors" id="museum-block">
+                          <div class="w-10 h-10 rounded-[14px] bg-green-50 text-green-500 flex items-center justify-center shrink-0">
+                              <i class="ph-fill ph-ticket text-[18px]"></i>
                           </div>
-                          <div class="flex-1 pr-2">
-                              <h4 class="font-bold text-slate-800 text-[13px] truncate">Event - ABC Kite Fest</h4>
+                          <div class="flex-1 pr-2 pt-1">
+                              <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider mb-0.5 block">Starts</span>
+                              <h4 class="font-bold text-brand-t1 text-[14px] leading-tight">Event - ABC Kite Fest</h4>
                           </div>
                       </div>
                   </div>
@@ -179,18 +176,18 @@
                   <!-- Timeline Item: Lunch (With Budget Warning) -->
                   <div class="relative flex items-start group cursor-pointer">
                       <div class="absolute left-[-56px] w-[45px] text-right top-[10px]">
-                          <span class="text-[10px] font-bold text-slate-800 leading-[1.1] block">12:15<br/>PM</span>
+                          <span class="text-[11px] font-bold text-brand-t1 leading-[1.1] block">12:15<br/>PM</span>
                       </div>
-                      <div class="absolute left-[13px] top-[14px] w-2 h-2 bg-orange-500 rounded-full ring-[4px] ring-brand-cream z-10"></div>
-                      <div class="pl-8 flex items-start gap-3 w-full border-b border-slate-200/60 pb-3 mb-3">
-                          <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 mt-1">
-                              <i class="ph-fill ph-hamburger text-[14px]"></i>
+                      <div class="absolute left-[13px] top-[14px] w-2.5 h-2.5 bg-orange-500 rounded-full ring-[4px] ring-brand-bg z-10"></div>
+                      <div class="pl-8 flex items-start gap-3 w-full border-b border-brand-border pb-4 mb-4">
+                          <div class="w-10 h-10 rounded-[14px] bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                              <i class="ph-fill ph-hamburger text-[18px]"></i>
                           </div>
-                          <div class="flex-1 pr-2 pt-1.5">
-                              <h4 class="font-bold text-slate-800 text-[13px] truncate leading-none mb-1.5">Lunch - Quick Serve</h4>
-                              <!-- Condensed alert style -->
-                              <div class="inline-flex items-center gap-1 bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[9px] font-bold border border-red-100">
-                                  <i class="ph-fill ph-warning-circle"></i> Avg $40/person here
+                          <div class="flex-1 pr-2 pt-1">
+                              <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider mb-0.5 block">Reservation</span>
+                              <h4 class="font-bold text-brand-t1 text-[14px] leading-tight mb-2">Lunch - Quick Serve</h4>
+                              <div class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2 py-1 rounded-[8px] text-[10px] font-bold border border-red-100">
+                                  <i class="ph-fill ph-warning-circle text-[12px]"></i> Avg $40/person here
                               </div>
                           </div>
                       </div>
@@ -199,15 +196,16 @@
                   <!-- Timeline Item: Driving/Downtime -->
                   <div class="relative flex items-start group">
                       <div class="absolute left-[-56px] w-[45px] text-right top-[10px]">
-                          <span class="text-[10px] font-bold text-slate-400 leading-[1.1] block">1:00<br/>PM</span>
+                          <span class="text-[11px] font-bold text-brand-t3 leading-[1.1] block">1:00<br/>PM</span>
                       </div>
-                      <div class="absolute left-[13px] top-[14px] w-2 h-2 bg-slate-300 rounded-full ring-[4px] ring-brand-cream z-10"></div>
-                      <div class="pl-8 flex items-center gap-3 w-full border-b border-slate-200/60 pb-3 mb-3">
-                          <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
-                              <i class="ph-fill ph-lock text-[14px]"></i>
+                      <div class="absolute left-[13px] top-[14px] w-2.5 h-2.5 bg-brand-border rounded-full ring-[4px] ring-brand-bg z-10"></div>
+                      <div class="pl-8 flex items-start gap-3 w-full border-b border-brand-border pb-4 mb-4">
+                          <div class="w-10 h-10 rounded-[14px] bg-brand-bg1 text-brand-t3 flex items-center justify-center shrink-0">
+                              <i class="ph-fill ph-lock text-[18px]"></i>
                           </div>
-                          <div class="flex-1 pr-2">
-                              <h4 class="font-bold text-slate-500 text-[13px] truncate">Family Nap & Downtime</h4>
+                          <div class="flex-1 pr-2 pt-1">
+                              <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider mb-0.5 block">Locked</span>
+                              <h4 class="font-bold text-brand-t3 text-[14px] leading-tight">Family Nap & Downtime</h4>
                           </div>
                       </div>
                   </div>
@@ -215,26 +213,28 @@
                   <!-- Timeline Item: Dinner -->
                   <div class="relative flex items-start group cursor-pointer">
                       <div class="absolute left-[-56px] w-[45px] text-right top-[10px]">
-                          <span class="text-[10px] font-bold text-slate-800 leading-[1.1] block">6:00<br/>PM</span>
+                          <span class="text-[11px] font-bold text-brand-t1 leading-[1.1] block">6:00<br/>PM</span>
                       </div>
-                      <div class="absolute left-[13px] top-[14px] w-2 h-2 bg-blue-600 rounded-full ring-[4px] ring-brand-cream z-10"></div>
-                      <div class="pl-8 flex items-start gap-3 w-full border-b border-slate-200/60 pb-3 mb-3">
-                          <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-1">
-                              <i class="ph-fill ph-fork-knife text-[14px]"></i>
+                      <div class="absolute left-[13px] top-[14px] w-2.5 h-2.5 bg-blue-600 rounded-full ring-[4px] ring-brand-bg z-10"></div>
+                      <div class="pl-8 flex items-start gap-3 w-full pb-4 mb-2">
+                          <div class="w-10 h-10 rounded-[14px] bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                              <i class="ph-fill ph-fork-knife text-[18px]"></i>
                           </div>
-                          <div class="flex-1 pr-2 pt-1.5">
-                              <h4 class="font-bold text-slate-800 text-[13px] truncate leading-none mb-1.5">Dinner - Terry Black's</h4>
-                              <div class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[9px] font-bold border border-green-100">
-                                  <i class="ph-fill ph-credit-card"></i> 3x pts with Sapphire
+                          <div class="flex-1 pr-2 pt-1">
+                              <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider mb-0.5 block">Reservation</span>
+                              <h4 class="font-bold text-brand-t1 text-[14px] leading-tight mb-2">Dinner - Terry Black's</h4>
+                              <div class="inline-flex items-center gap-1.5 bg-green-50 text-green-700 px-2 py-1 rounded-[8px] text-[10px] font-bold border border-green-100">
+                                  <i class="ph-fill ph-credit-card text-[12px]"></i> 3x pts with Sapphire
                               </div>
                           </div>
                       </div>
                   </div>
                   
-                  <!-- Button at end of day (Matching screenshot) -->
-                  <div class="pl-8 pt-1">
-                      <button class="flex items-center gap-2 bg-white border border-slate-200 text-slate-800 text-[11px] font-bold px-4 py-2 rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
-                          <i class="ph-bold ph-compass"></i> Discover Attractions Nearby
+                  <!-- Add to Day Button (From TimelineScreen.jsx) -->
+                  <div class="pl-8 pt-2">
+                      <button class="w-full py-4 rounded-[16px] border-2 border-dashed border-brand-border text-brand-t3 flex items-center justify-center gap-2 hover:bg-brand-bg1 transition-all">
+                          <i class="ph-bold ph-plus text-[18px]"></i>
+                          <span class="text-[13px] font-bold">Add to Mar 24</span>
                       </button>
                   </div>
 
@@ -266,81 +266,117 @@
         </div>
 
         <!-- RADAR / VISION TAB CONTENT (Sophisticated Discovery - AUSTIN FOCUSED) -->
-        <div id="tab-radar" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
+        <div id="tab-radar" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-bg">
             
             <!-- Sticky Search Header -->
-            <div class="bg-brand-dark pt-12 sm:pt-14 pb-4 px-5 relative z-20 shadow-md sticky top-0">
-                <div class="flex gap-2">
-                    <div class="flex-1 bg-white rounded-xl flex items-center px-3 shadow-inner">
-                        <i class="ph-bold ph-magnifying-glass text-slate-400"></i>
-                        <input type="text" class="w-full bg-transparent p-2.5 outline-none text-[13px] font-medium text-slate-800" placeholder="Search Austin events, places..." />
+            <div class="bg-brand-bg pt-12 sm:pt-14 pb-4 px-5 relative z-20 sticky top-0 border-b border-brand-border">
+                <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight mb-3">Radar</h1>
+                <!-- Search Bar -->
+                <div class="flex gap-2 mb-4">
+                    <div class="flex-1 bg-brand-bg1 rounded-[16px] border border-brand-border flex items-center px-4">
+                        <i class="ph-bold ph-magnifying-glass text-brand-t3 text-lg"></i>
+                        <input type="text" class="w-full bg-transparent p-3 outline-none text-[14px] font-bold text-brand-t1 placeholder:text-brand-t3" placeholder="Search Austin..." />
                     </div>
-                    <button class="bg-brand-coral text-brand-dark px-4 rounded-xl text-[11px] font-bold shadow-sm hover:opacity-90 transition-colors">Search</button>
+                </div>
+                
+                <!-- Category Pills (Scrollable) -->
+                <div class="flex gap-2.5 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
+                    <button class="bg-purple-50 text-purple-600 border border-purple-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-calendar"></i> Events</button>
+                    <button class="bg-blue-50 text-blue-600 border border-blue-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-camera"></i> Activities</button>
+                    <button class="bg-green-50 text-green-600 border border-green-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-tree-palm"></i> Parks</button>
+                    <button class="bg-red-50 text-red-600 border border-red-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-fork-knife"></i> Restaurants</button>
+                    <button class="bg-indigo-50 text-indigo-600 border border-indigo-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-church"></i> Spiritual</button>
+                    <button class="bg-brand-accentSoft text-brand-accent border border-brand-accent/20 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-palette"></i> Murals</button>
+                    <button class="bg-yellow-50 text-yellow-600 border border-yellow-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-tote"></i> Souvenirs</button>
                 </div>
             </div>
 
-            <div class="px-5 mt-5">
+            <div class="px-5 mt-5 space-y-8">
                 
                 <!-- Spring Events in Austin -->
-                <div class="mb-6">
-                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-3 flex items-center justify-between">
-                        <span class="flex items-center"><i class="ph-fill ph-sparkle mr-1.5 text-brand-coral"></i> Spring Events in Austin</span>
-                        <span class="text-[9px] text-slate-400 font-bold hover:text-brand-coral cursor-pointer">View all</span>
+                <div>
+                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
+                        <span>Upcoming Events</span>
+                        <span class="text-[10px] text-brand-accent font-bold cursor-pointer">See all</span>
                     </h2>
-                    <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
-                        <!-- Card 1 -->
-                        <div class="min-w-[180px] bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-                            <div class="h-24 bg-slate-200 relative">
+                    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
+                        <div class="min-w-[200px] bg-white rounded-[20px] overflow-hidden shadow-sm border border-brand-border">
+                            <div class="h-28 bg-brand-bg2 relative">
                                 <img src="https://images.unsplash.com/photo-1516008453472-005697d8b5a0?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" />
-                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-dark text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center"><i class="ph-fill ph-calendar text-blue-500 mr-1"></i> March 31</div>
+                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-t1 text-[9px] font-bold px-2 py-1 rounded-[8px] shadow-sm flex items-center"><i class="ph-fill ph-calendar text-blue-500 mr-1.5 text-[12px]"></i> Mar 31</div>
                             </div>
-                            <div class="p-3">
-                                <h3 class="font-bold text-slate-800 text-[13px] truncate">ABC Kite Fest</h3>
-                                <p class="text-[10px] text-slate-500 mt-0.5 font-medium truncate">Zilker Park • Family Friendly</p>
+                            <div class="p-4">
+                                <h3 class="font-bold text-brand-t1 text-[15px] mb-1">ABC Kite Fest</h3>
+                                <p class="text-[11px] text-brand-t3 font-medium">Zilker Park • Family Friendly</p>
                             </div>
                         </div>
-                        <!-- Card 2 -->
-                        <div class="min-w-[180px] bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-                            <div class="h-24 bg-slate-200 relative">
+                        <div class="min-w-[200px] bg-white rounded-[20px] overflow-hidden shadow-sm border border-brand-border">
+                            <div class="h-28 bg-brand-bg2 relative">
                                 <img src="https://images.unsplash.com/photo-1522856402377-508bde193077?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" />
-                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-dark text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center"><i class="ph-fill ph-calendar text-amber-500 mr-1"></i> April 12</div>
+                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-t1 text-[9px] font-bold px-2 py-1 rounded-[8px] shadow-sm flex items-center"><i class="ph-fill ph-calendar text-brand-accent mr-1.5 text-[12px]"></i> Apr 12</div>
                             </div>
-                            <div class="p-3">
-                                <h3 class="font-bold text-slate-800 text-[13px] truncate">Capitol Easter Egg Hunt</h3>
-                                <p class="text-[10px] text-slate-500 mt-0.5 font-medium truncate">Texas State Capitol grounds</p>
+                            <div class="p-4">
+                                <h3 class="font-bold text-brand-t1 text-[15px] mb-1">Easter Egg Hunt</h3>
+                                <p class="text-[11px] text-brand-t3 font-medium">Texas State Capitol grounds</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Spiritual & Community Establishments -->
-                <div class="mb-6">
-                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-3 flex items-center justify-between">
-                        <span class="flex items-center"><i class="ph-fill ph-church mr-1.5 text-blue-600"></i> Spiritual & Community</span>
+                <div>
+                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
+                        <span>Spiritual & Community</span>
                     </h2>
-                    <div class="space-y-2">
-                        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer">
-                            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">
-                                <i class="ph-fill ph-hands-praying text-xl"></i>
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-4 cursor-pointer">
+                            <div class="w-12 h-12 rounded-[14px] bg-indigo-50 flex items-center justify-center text-indigo-500 shrink-0">
+                                <i class="ph-fill ph-church text-[20px]"></i>
                             </div>
                             <div class="flex-1 pr-2">
-                                <h3 class="font-bold text-slate-800 text-[13px]">Austin Stone Community</h3>
-                                <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Multiple locations • Family services</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="bg-slate-100 text-slate-500 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">Church</span>
+                                <h3 class="font-bold text-brand-t1 text-[14px]">Austin Stone</h3>
+                                <p class="text-[11px] text-brand-t3 mt-0.5 font-medium">Multiple locations • Family services</p>
                             </div>
                         </div>
-                        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer">
-                            <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 shrink-0">
-                                <i class="ph-fill ph-flower-lotus text-xl"></i>
+                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-4 cursor-pointer">
+                            <div class="w-12 h-12 rounded-[14px] bg-purple-50 flex items-center justify-center text-purple-500 shrink-0">
+                                <i class="ph-fill ph-flower-lotus text-[20px]"></i>
                             </div>
                             <div class="flex-1 pr-2">
-                                <h3 class="font-bold text-slate-800 text-[13px]">Austin Zen Center</h3>
-                                <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Open meditation & community talks</p>
+                                <h3 class="font-bold text-brand-t1 text-[14px]">Austin Zen Center</h3>
+                                <p class="text-[11px] text-brand-t3 mt-0.5 font-medium">Open meditation & community talks</p>
                             </div>
-                            <div class="text-right">
-                                <span class="bg-slate-100 text-slate-500 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">Center</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Murals & Street Art -->
+                <div class="mb-6">
+                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
+                        <span>Murals & Street Art</span>
+                        <span class="text-[10px] text-brand-accent font-bold cursor-pointer">Map View</span>
+                    </h2>
+                    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
+                        <!-- Mural 1 -->
+                        <div class="min-w-[200px] bg-white rounded-[20px] overflow-hidden shadow-sm border border-brand-border cursor-pointer">
+                            <div class="h-28 bg-brand-bg2 relative">
+                                <img src="https://images.unsplash.com/photo-1561582298-63ce0985a975?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" />
+                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-t1 text-[9px] font-bold px-2 py-1 rounded-[8px] shadow-sm flex items-center"><i class="ph-fill ph-camera text-brand-accent mr-1.5 text-[12px]"></i> Photo Op</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-brand-t1 text-[15px] mb-1">Greetings from Austin</h3>
+                                <p class="text-[11px] text-brand-t3 font-medium">1720 S 1st St • Iconic postcard mural</p>
+                            </div>
+                        </div>
+                        <!-- Mural 2 -->
+                        <div class="min-w-[200px] bg-white rounded-[20px] overflow-hidden shadow-sm border border-brand-border cursor-pointer">
+                            <div class="h-28 bg-brand-bg2 relative">
+                                <img src="https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" />
+                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-t1 text-[9px] font-bold px-2 py-1 rounded-[8px] shadow-sm flex items-center"><i class="ph-fill ph-paint-brush text-purple-500 mr-1.5 text-[12px]"></i> Graffiti Park</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-brand-t1 text-[15px] mb-1">HOPE Outdoor Gallery</h3>
+                                <p class="text-[11px] text-brand-t3 font-medium">Near airport • Ever-changing art walls</p>
                             </div>
                         </div>
                     </div>
@@ -348,19 +384,23 @@
 
                 <!-- Local Souvenirs & Crafts -->
                 <div class="mb-5">
-                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-3 flex items-center justify-between">
-                        <span class="flex items-center"><i class="ph-fill ph-tote mr-1.5 text-green-500"></i> Local Shops & Souvenirs</span>
+                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
+                        <span>Local Shops & Souvenirs</span>
                     </h2>
-                    <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
-                        <div class="min-w-[140px] bg-white p-3 rounded-2xl border border-slate-100 shadow-sm cursor-pointer hover:border-brand-dark/30">
-                            <i class="ph-fill ph-cowboy-hat text-2xl text-slate-400 mb-2"></i>
-                            <h3 class="text-[13px] font-bold text-slate-800">Allens Boots</h3>
-                            <p class="text-[10px] text-slate-500 font-medium mt-1">South Congress staple.</p>
+                    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
+                        <div class="min-w-[150px] bg-white p-4 rounded-[20px] border border-brand-border shadow-sm cursor-pointer">
+                            <div class="w-10 h-10 bg-yellow-50 text-yellow-600 rounded-[12px] flex items-center justify-center mb-3">
+                                <i class="ph-fill ph-cowboy-hat text-[20px]"></i>
+                            </div>
+                            <h3 class="text-[14px] font-bold text-brand-t1">Allens Boots</h3>
+                            <p class="text-[11px] text-brand-t3 font-medium mt-1">South Congress staple.</p>
                         </div>
-                        <div class="min-w-[140px] bg-white p-3 rounded-2xl border border-slate-100 shadow-sm cursor-pointer hover:border-brand-dark/30">
-                            <i class="ph-fill ph-paint-brush text-2xl text-slate-400 mb-2"></i>
-                            <h3 class="text-[13px] font-bold text-slate-800">Austin Art Garage</h3>
-                            <p class="text-[10px] text-slate-500 font-medium mt-1">Support local artists.</p>
+                        <div class="min-w-[150px] bg-white p-4 rounded-[20px] border border-brand-border shadow-sm cursor-pointer">
+                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-[12px] flex items-center justify-center mb-3">
+                                <i class="ph-fill ph-paint-brush text-[20px]"></i>
+                            </div>
+                            <h3 class="text-[14px] font-bold text-brand-t1">Austin Art Garage</h3>
+                            <p class="text-[11px] text-brand-t3 font-medium mt-1">Support local artists.</p>
                         </div>
                     </div>
                 </div>
@@ -369,421 +409,339 @@
         </div>
 
         <!-- TRIPS TAB CONTENT -->
-        <div id="tab-trips" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
-            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
-                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Your Trips</h1>
+        <div id="tab-trips" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-bg">
+            <div class="pt-12 sm:pt-14 pb-4 px-5 relative z-0 bg-brand-bg border-b border-brand-border">
+                <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight mb-1">Your Trips</h1>
             </div>
 
-            <div class="px-5 mt-5 space-y-3">
-                <!-- In Planning Trip -->
-                <div onclick="openTripDetail()" class="bg-white border-2 border-brand-coral/30 rounded-[1.25rem] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-12 h-12 bg-brand-coral/10 rounded-bl-full -z-10"></div>
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="bg-brand-coral/20 text-brand-dark text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide flex items-center">
-                            <i class="ph-bold ph-pencil-simple mr-1"></i> Planning
-                        </span>
-                        <i class="ph-bold ph-dots-three text-slate-400"></i>
-                    </div>
-                    <h3 class="text-sm font-bold text-brand-dark">Trip to Denver</h3>
-                    <p class="text-xs text-slate-500 mt-0.5 flex items-center font-medium">
-                        <i class="ph-fill ph-calendar-blank mr-1 text-slate-400"></i> Mar 23 - 26 (4 days)
-                    </p>
-                    <div class="mt-3 flex gap-1.5">
-                        <div class="bg-slate-50 px-2 py-1 rounded-md text-[9px] font-bold text-slate-500 border border-slate-100">Flights booked</div>
-                        <div class="bg-brand-coral/10 px-2 py-1 rounded-md text-[9px] font-bold text-brand-dark border border-brand-coral/20 flex items-center">
-                            <i class="ph-bold ph-warning-circle mr-1"></i> Needs Hotel
+            <div class="px-5 mt-5">
+                
+                <!-- Smart Offers & Deals Section -->
+                <div class="mb-8">
+                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center">
+                        <i class="ph-fill ph-tag mr-2 text-brand-accent"></i> Smart Offers & Deals
+                    </h2>
+                    <div class="space-y-3">
+                        <!-- Points Deal -->
+                        <div class="bg-gradient-to-br from-[#0a2342] to-[#1a3a60] rounded-[20px] p-4 shadow-md text-white flex items-center justify-between cursor-pointer relative overflow-hidden">
+                            <div class="relative z-10 pr-4">
+                                <div class="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-blue-200">
+                                    <i class="ph-fill ph-credit-card"></i> CHASE SAPPHIRE
+                                </div>
+                                <h3 class="font-bold text-[15px] leading-tight mb-1">Disney Flights for 40k Pts</h3>
+                                <p class="text-[11px] text-blue-100 font-medium">We found a redemption match for your saved Orlando trip.</p>
+                            </div>
+                            <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-[12px] flex items-center justify-center shrink-0 z-10">
+                                <i class="ph-bold ph-airplane-tilt text-white text-[18px]"></i>
+                            </div>
+                        </div>
+                        <!-- Corporate Discount -->
+                        <div class="bg-white rounded-[20px] p-4 shadow-sm border border-brand-border flex items-center justify-between cursor-pointer">
+                            <div class="pr-4">
+                                <div class="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-brand-t3">
+                                    <i class="ph-fill ph-briefcase text-slate-400"></i> HP EMPLOYEE RATE
+                                </div>
+                                <h3 class="font-bold text-[15px] text-brand-t1 leading-tight mb-1">25% Off Avis Rentals</h3>
+                                <p class="text-[11px] text-brand-t3 font-medium">Automatically applied to your Denver itinerary.</p>
+                            </div>
+                            <div class="w-10 h-10 bg-brand-bg1 rounded-[12px] flex items-center justify-center shrink-0 text-brand-t2 border border-brand-border">
+                                <i class="ph-bold ph-car text-[18px]"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Planned Trip -->
-                <div class="bg-white border border-slate-100 rounded-[1.25rem] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
-                     <div class="absolute top-0 right-0 w-12 h-12 bg-green-50 rounded-bl-full -z-10"></div>
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="bg-green-100 text-green-800 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide flex items-center">
-                            <i class="ph-bold ph-check-circle mr-1"></i> Planned
-                        </span>
-                         <i class="ph-bold ph-dots-three text-slate-400"></i>
+                <!-- Trips List -->
+                <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center">
+                    <i class="ph-fill ph-suitcase mr-2 text-brand-t3"></i> Itineraries
+                </h2>
+                <div class="space-y-4">
+                    <!-- In Planning Trip -->
+                    <div onclick="openTripDetail()" class="bg-white border-2 border-brand-accent/20 rounded-[20px] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-brand-accentSoft text-brand-accent text-[10px] font-bold px-2 py-1 rounded-[8px] uppercase tracking-wider flex items-center">
+                                <i class="ph-bold ph-pencil-simple mr-1.5 text-[12px]"></i> Planning
+                            </span>
+                            <i class="ph-bold ph-dots-three text-brand-t3 text-[20px]"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-brand-t1">Trip to Denver</h3>
+                        <p class="text-[12px] text-brand-t3 mt-1 flex items-center font-bold">
+                            <i class="ph-fill ph-calendar-blank mr-1.5 text-[14px]"></i> Mar 23 - 26 (4 days)
+                        </p>
                     </div>
-                    <h3 class="text-sm font-bold text-brand-dark">Maldives Anniversary</h3>
-                    <p class="text-xs text-slate-500 mt-0.5 flex items-center font-medium">
-                        <i class="ph-fill ph-calendar-blank mr-1 text-slate-400"></i> Nov 1 - 8
-                    </p>
-                    <div class="mt-3 flex -space-x-1.5">
-                        <div class="w-6 h-6 rounded-full bg-brand-dark border-2 border-white text-white flex justify-center items-center text-[8px] font-bold z-20">You</div>
-                        <div class="w-6 h-6 rounded-full bg-brand-coral border-2 border-white text-brand-dark flex justify-center items-center text-[8px] font-bold z-10">S</div>
+
+                    <!-- Planned Trip -->
+                    <div class="bg-white border border-brand-border rounded-[20px] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-1 rounded-[8px] uppercase tracking-wider flex items-center">
+                                <i class="ph-bold ph-check-circle mr-1.5 text-[12px]"></i> Planned
+                            </span>
+                            <i class="ph-bold ph-dots-three text-brand-t3 text-[20px]"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-brand-t1">Maldives Anniversary</h3>
+                        <p class="text-[12px] text-brand-t3 mt-1 flex items-center font-bold">
+                            <i class="ph-fill ph-calendar-blank mr-1.5 text-[14px]"></i> Nov 1 - 8
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- JOURNAL TAB CONTENT -->
-        <div id="tab-journal" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
-            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
-                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Memories</h1>
-                <p class="text-brand-coral text-xs mt-1 font-medium relative z-10">Everything you’ve jotted down.</p>
+        <!-- JOURNAL TAB CONTENT (Matching JournalNotebookScreen.jsx) -->
+        <div id="tab-journal" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-bg">
+            <div class="pt-12 sm:pt-14 pb-4 px-5 relative z-0 bg-brand-bg border-b border-brand-border">
+                <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight">Memories</h1>
+                <p class="text-brand-t3 text-[12px] mt-1 font-bold">Everything you’ve jotted down.</p>
             </div>
             
-            <div class="px-5 mt-5 space-y-5">
-                <!-- New Entry Box (Amber styling like JSX file) -->
-                <div class="bg-amber-50 border border-amber-200 p-4 rounded-[1.25rem] shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5"><i class="ph-bold ph-book-open"></i> New General Entry</h3>
+            <div class="px-5 mt-6 space-y-6">
+                <!-- New Entry Box -->
+                <div class="bg-white border border-brand-border p-4 rounded-[20px] shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-[11px] font-bold text-brand-t2 uppercase tracking-wider flex items-center gap-1.5"><i class="ph-bold ph-book-open"></i> New General Entry</h3>
                     </div>
-                    <textarea placeholder="What's on your mind today?" class="w-full bg-transparent border-0 text-[13px] text-amber-900 placeholder:text-amber-700/50 outline-none resize-none font-medium h-16"></textarea>
-                    <div class="flex justify-end mt-2 pt-3 border-t border-amber-200/60">
-                        <button class="bg-amber-600 hover:bg-amber-700 transition-colors text-white text-[10px] font-bold px-4 py-2 rounded-lg shadow-sm">Save to Journal</button>
+                    <textarea placeholder="What's on your mind today?" class="w-full bg-brand-bg1 rounded-[12px] p-3 border-0 text-[14px] text-brand-t1 placeholder:text-brand-t3 outline-none resize-none font-medium h-20 focus:ring-2 focus:ring-brand-accent/20 transition-all"></textarea>
+                    <div class="flex justify-end mt-3">
+                        <button class="bg-brand-t1 hover:bg-opacity-90 transition-colors text-white text-[11px] font-bold px-4 py-2.5 rounded-[12px] shadow-sm">Save Note</button>
                     </div>
                 </div>
 
                 <!-- Feed Line and Entries -->
-                <div class="relative pl-6 border-l-[2px] border-slate-200 space-y-5 ml-2 mt-6 pb-4">
+                <div class="relative pl-7 border-l-[2px] border-brand-border space-y-6 ml-2 mt-8 pb-4">
                     <!-- Entry 1 -->
                     <div class="relative">
-                        <div class="absolute -left-[31px] top-1 w-5 h-5 bg-brand-cream border-4 border-brand-dark rounded-full shadow-sm z-10"></div>
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-dark/20 transition-colors ml-1">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100"><i class="ph-bold ph-calendar"></i> Mar 24</span>
-                                <span class="text-[9px] font-bold text-brand-dark bg-brand-coral/10 px-1.5 py-0.5 rounded">Trip to Denver</span>
+                        <div class="absolute -left-[35px] top-1 w-4 h-4 bg-brand-accent rounded-full shadow-sm ring-[4px] ring-brand-bg z-10"></div>
+                        <div class="bg-white p-4 rounded-[20px] shadow-sm border border-brand-border cursor-pointer hover:border-brand-accent/30 transition-colors ml-2">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-t3 flex items-center gap-1 bg-brand-bg1 px-2 py-1 rounded-[8px]"><i class="ph-bold ph-calendar text-[12px]"></i> Mar 24</span>
+                                <span class="text-[10px] font-bold text-brand-accent bg-brand-accentSoft px-2 py-1 rounded-[8px]">Trip to Denver</span>
                             </div>
-                            <p class="text-[13px] font-medium text-slate-700 leading-relaxed">The kids absolutely loved the Thinkery today. Glad we moved it to the afternoon, it was much quieter. We ended up staying for almost 3 hours!</p>
+                            <p class="text-[14px] font-medium text-brand-t1 leading-relaxed">The kids absolutely loved the Thinkery today. Glad we moved it to the afternoon, it was much quieter. We ended up staying for almost 3 hours!</p>
                         </div>
                     </div>
                     <!-- Entry 2 -->
                     <div class="relative">
-                        <div class="absolute -left-[31px] top-1 w-5 h-5 bg-brand-cream border-4 border-slate-300 rounded-full shadow-sm z-10"></div>
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-dark/20 transition-colors ml-1">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100"><i class="ph-bold ph-calendar"></i> Mar 23</span>
-                                <span class="text-[9px] font-bold text-brand-dark bg-brand-coral/10 px-1.5 py-0.5 rounded">Trip to Denver</span>
+                        <div class="absolute -left-[35px] top-1 w-4 h-4 bg-brand-t3 rounded-full shadow-sm ring-[4px] ring-brand-bg z-10"></div>
+                        <div class="bg-white p-4 rounded-[20px] shadow-sm border border-brand-border cursor-pointer hover:border-brand-accent/30 transition-colors ml-2">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-t3 flex items-center gap-1 bg-brand-bg1 px-2 py-1 rounded-[8px]"><i class="ph-bold ph-calendar text-[12px]"></i> Mar 23</span>
+                                <span class="text-[10px] font-bold text-brand-accent bg-brand-accentSoft px-2 py-1 rounded-[8px]">Trip to Denver</span>
                             </div>
-                            <p class="text-[13px] font-medium text-slate-700 leading-relaxed">Flight landed on time. Denver is beautiful. Checked into the hotel and resting up before BBQ tonight.</p>
+                            <p class="text-[14px] font-medium text-brand-t1 leading-relaxed">Flight landed on time. Denver is beautiful. Checked into the hotel and resting up before BBQ tonight.</p>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Sync Indicator -->
-                <div class="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold justify-center pt-2">
-                    <i class="ph-fill ph-arrows-clockwise"></i> Synced securely with Apple Journal
+                <div class="flex items-center gap-1.5 text-brand-t3 text-[11px] font-bold justify-center pt-2">
+                    <i class="ph-bold ph-arrows-clockwise text-[14px]"></i> Synced securely with Apple Journal
                 </div>
-            </div>
-        </div>
-
-        <!-- FAMILY TAB CONTENT -->
-        <div id="tab-family" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
-            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
-                <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
-                    <div class="absolute right-0 top-0 w-32 h-32 border-[1px] border-white"></div>
-                    <div class="absolute right-4 top-4 w-24 h-24 border-[1px] border-white"></div>
-                </div>
-                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Your Family</h1>
-                <p class="text-brand-coral text-xs mt-1 font-medium relative z-10">On-device context to prevent burnout.</p>
-            </div>
-
-            <div class="px-5 mt-5 space-y-4">
-                
-                <!-- Profiles Section -->
-                <div class="bg-white rounded-[1.25rem] border border-slate-100 p-4 shadow-sm">
-                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Profiles</h2>
-                    <div class="flex items-center justify-between border-b border-slate-50 pb-3 mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold">You</div>
-                            <div>
-                                <h3 class="text-[13px] font-bold text-slate-800">Primary Account</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between border-b border-slate-50 pb-3 mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-brand-coral text-brand-dark flex items-center justify-center font-bold">L</div>
-                            <div>
-                                <h3 class="text-[13px] font-bold text-slate-800">Leo</h3>
-                                <p class="text-[11px] text-slate-500 font-medium">Child • Age 4</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="w-full text-brand-dark text-[11px] font-bold flex items-center justify-center py-2 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                        <i class="ph-bold ph-plus mr-1"></i> Add Family Member
-                    </button>
-                </div>
-
-                <!-- Preferences / Burnout Preventer Settings -->
-                <div class="bg-white rounded-[1.25rem] border border-slate-100 p-4 shadow-sm">
-                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Burnout Prevention</h2>
-                    
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-[13px] font-bold text-slate-800 flex items-center"><i class="ph-bold ph-lock mr-1 text-slate-400"></i> Protect Nap Time</h3>
-                            <p class="text-[10px] text-slate-500 mt-0.5 font-medium">AI will never schedule activities here.</p>
-                        </div>
-                        <!-- Toggle Switch (On) -->
-                        <div class="w-10 h-6 bg-green-500 rounded-full relative cursor-pointer">
-                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100 mb-4 flex justify-between items-center cursor-pointer">
-                        <span class="text-[12px] font-bold text-slate-600">Locked Window</span>
-                        <span class="text-[12px] font-bold text-brand-dark">1:00 PM - 2:00 PM</span>
-                    </div>
-
-                    <div class="pt-2 border-t border-slate-50">
-                        <h3 class="text-[13px] font-bold text-slate-800 mb-1">Crowd Tolerance</h3>
-                        <p class="text-[10px] text-slate-500 mb-2 font-medium">How busy is too busy?</p>
-                        <div class="flex bg-slate-100 p-1 rounded-xl">
-                            <button class="flex-1 py-1.5 text-[11px] font-bold text-slate-500 rounded-lg">Low</button>
-                            <button class="flex-1 py-1.5 text-[11px] font-bold bg-white text-brand-dark rounded-lg shadow-sm">Medium</button>
-                            <button class="flex-1 py-1.5 text-[11px] font-bold text-slate-500 rounded-lg">High</button>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
 
         <!-- FLOATING ACTION BUTTON (+) -->
-        <button onclick="openPlanModal()" class="absolute bottom-24 sm:bottom-20 right-5 w-14 h-14 bg-brand-coral text-brand-dark rounded-full shadow-lg shadow-brand-coral/30 flex justify-center items-center hover:bg-opacity-90 transition-colors z-30">
-            <i class="ph-bold ph-plus text-2xl"></i>
+        <button onclick="openPlanModal()" class="absolute bottom-24 sm:bottom-20 right-5 w-16 h-16 bg-brand-accent text-white rounded-[22px] shadow-lg shadow-brand-accent/30 flex justify-center items-center hover:bg-opacity-90 transition-colors z-30">
+            <i class="ph-bold ph-plus text-[28px]"></i>
         </button>
 
-        <!-- Bottom Navigation (5 Tabs) -->
-        <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 pt-2.5 pb-8 sm:pb-6 px-4 flex justify-between items-center z-40">
-          <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 transition-colors text-brand-dark w-12">
-            <i id="nav-icon-home" class="ph-fill ph-calendar-blank text-2xl"></i>
-            <span class="text-[8px] font-bold">Timeline</span>
+        <!-- Bottom Navigation -->
+        <div class="absolute bottom-0 w-full bg-brand-bg/95 backdrop-blur-md border-t border-brand-border pt-3 pb-8 sm:pb-6 px-5 flex justify-between items-center z-40">
+          <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 transition-colors text-brand-accent w-12">
+            <i id="nav-icon-home" class="ph-fill ph-calendar-blank text-[24px]"></i>
+            <span class="text-[9px] font-bold">Timeline</span>
           </button>
           
-          <button onclick="switchTab('radar')" id="nav-btn-radar" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
-            <i id="nav-icon-radar" class="ph ph-compass text-2xl"></i>
-            <span class="text-[8px] font-bold">Radar</span>
+          <button onclick="switchTab('radar')" id="nav-btn-radar" class="flex flex-col items-center gap-1 text-brand-t3 hover:text-brand-t1 transition-colors w-12">
+            <i id="nav-icon-radar" class="ph ph-compass text-[24px]"></i>
+            <span class="text-[9px] font-bold">Radar</span>
           </button>
           
-          <button onclick="switchTab('trips')" id="nav-btn-trips" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
-            <i id="nav-icon-trips" class="ph ph-suitcase text-2xl"></i>
-            <span class="text-[8px] font-bold">Trips</span>
+          <button onclick="switchTab('trips')" id="nav-btn-trips" class="flex flex-col items-center gap-1 text-brand-t3 hover:text-brand-t1 transition-colors w-12">
+            <i id="nav-icon-trips" class="ph ph-suitcase text-[24px]"></i>
+            <span class="text-[9px] font-bold">Trips</span>
           </button>
 
-          <button onclick="switchTab('journal')" id="nav-btn-journal" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
-            <i id="nav-icon-journal" class="ph ph-book-open text-2xl"></i>
-            <span class="text-[8px] font-bold">Journal</span>
-          </button>
-
-          <button onclick="switchTab('family')" id="nav-btn-family" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
-            <i id="nav-icon-family" class="ph ph-users text-2xl"></i>
-            <span class="text-[8px] font-bold">Family</span>
+          <button onclick="switchTab('journal')" id="nav-btn-journal" class="flex flex-col items-center gap-1 text-brand-t3 hover:text-brand-t1 transition-colors w-12">
+            <i id="nav-icon-journal" class="ph ph-book-open text-[24px]"></i>
+            <span class="text-[9px] font-bold">Journal</span>
           </button>
         </div>
     </div>
 
     <!-- NEW "PLAN A TRIP" MODAL -->
-    <div id="plan-modal" class="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm z-50 flex items-end opacity-0 pointer-events-none transition-all-custom">
-        <div id="plan-modal-content" class="bg-brand-cream w-full h-[70%] rounded-t-[2rem] p-5 transform translate-y-full transition-all-custom flex flex-col">
-            <div class="flex justify-between items-center mb-5">
-                <h2 class="text-xl font-bold text-brand-dark">What are we planning?</h2>
-                <button onclick="closePlanModal()" class="w-7 h-7 bg-white rounded-full flex justify-center items-center text-slate-500 hover:bg-slate-100 shadow-sm border border-slate-100">
-                    <i class="ph-bold ph-x text-xs"></i>
+    <div id="plan-modal" class="absolute inset-0 bg-brand-t1/40 backdrop-blur-sm z-50 flex items-end opacity-0 pointer-events-none transition-all-custom">
+        <div id="plan-modal-content" class="bg-brand-bg w-full h-[75%] rounded-t-[32px] p-6 transform translate-y-full transition-all-custom flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[22px] font-extrabold text-brand-t1">What are we planning?</h2>
+                <button onclick="closePlanModal()" class="w-8 h-8 bg-brand-bg1 rounded-full flex justify-center items-center text-brand-t3 hover:bg-brand-border transition-colors">
+                    <i class="ph-bold ph-x text-[14px]"></i>
                 </button>
             </div>
 
             <!-- Planning Options -->
-            <div class="grid grid-cols-2 gap-2.5 mb-5">
-                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
-                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
-                        <i class="ph-fill ph-airplane-tilt text-lg"></i>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
+                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
+                        <i class="ph-fill ph-airplane-tilt text-[22px]"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-xs">Vacation</span>
+                    <span class="font-bold text-brand-t1 text-[13px]">Vacation</span>
                 </button>
-                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
-                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
-                        <i class="ph-fill ph-ticket text-lg"></i>
+                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
+                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
+                        <i class="ph-fill ph-ticket text-[22px]"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-xs">Event</span>
+                    <span class="font-bold text-brand-t1 text-[13px]">Event</span>
                 </button>
-                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
-                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
-                        <i class="ph-fill ph-map-pin text-lg"></i>
+                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
+                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
+                        <i class="ph-fill ph-map-pin text-[22px]"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-xs">Place</span>
+                    <span class="font-bold text-brand-t1 text-[13px]">Place</span>
                 </button>
-                <button class="bg-white border border-slate-100 p-3 rounded-2xl flex flex-col items-center text-center hover:border-brand-coral transition-colors shadow-sm group">
-                    <div class="w-10 h-10 bg-brand-cream rounded-full flex justify-center items-center text-brand-dark mb-1.5 group-hover:bg-brand-coral group-hover:text-white transition-colors">
-                        <i class="ph-fill ph-envelope-simple-open text-lg"></i>
+                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
+                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
+                        <i class="ph-fill ph-envelope-simple-open text-[22px]"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-xs">Sync Gmail</span>
+                    <span class="font-bold text-brand-t1 text-[13px]">Sync Gmail</span>
                 </button>
             </div>
 
             <!-- AI Prompt Bar -->
             <div class="mt-auto relative">
-                <input type="text" placeholder="Or just tell me: 'Trip to Denver'" class="w-full bg-white border border-slate-200 text-[13px] font-medium rounded-xl py-3 pl-3 pr-10 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-dark shadow-sm">
-                <button class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-brand-dark text-white rounded-lg flex justify-center items-center hover:bg-opacity-90">
-                    <i class="ph-bold ph-paper-plane-right"></i>
+                <input type="text" placeholder="Or just tell me: 'Trip to Denver'" class="w-full bg-white border border-brand-border text-[14px] font-bold rounded-[16px] py-4 pl-4 pr-12 text-brand-t1 placeholder:text-brand-t3 focus:outline-none focus:ring-2 focus:ring-brand-accent shadow-sm">
+                <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-brand-t1 text-white rounded-[12px] flex justify-center items-center hover:bg-opacity-90 transition-colors">
+                    <i class="ph-bold ph-paper-plane-right text-[18px]"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- DETAILED TRIP PLANNING SCREEN (Wanderlog Competitor) - SLEEK HEADER -->
-    <div id="trip-detail-screen" class="absolute inset-0 bg-brand-cream z-[80] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out hide-scrollbar overflow-y-auto border-x border-slate-300">
+    <!-- DETAILED TRIP PLANNING SCREEN -->
+    <div id="trip-detail-screen" class="absolute inset-0 bg-brand-bg z-[80] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out hide-scrollbar overflow-y-auto border-x border-brand-border">
        
        <!-- Ultra-Compact Sticky Nav Header -->
-       <div class="bg-brand-dark pt-12 sm:pt-14 pb-3 px-4 flex items-center justify-between sticky top-0 z-50 shadow-sm shrink-0">
+       <div class="bg-brand-bg pt-12 sm:pt-14 pb-3 px-4 flex items-center justify-between sticky top-0 z-50 border-b border-brand-border">
            <!-- Left side: Navigation Back/Home -->
            <div class="flex items-center gap-1.5">
-               <button onclick="closeTripDetail()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors"><i class="ph-bold ph-caret-left text-lg"></i></button>
-               <button onclick="goHomeFromTrip()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors"><i class="ph-fill ph-house text-sm"></i></button>
+               <button onclick="closeTripDetail()" class="w-10 h-10 rounded-[12px] flex items-center justify-center text-brand-t1 hover:bg-brand-bg1 transition-colors"><i class="ph-bold ph-caret-left text-[20px]"></i></button>
+               <button onclick="goHomeFromTrip()" class="w-10 h-10 rounded-[12px] flex items-center justify-center text-brand-t1 hover:bg-brand-bg1 transition-colors"><i class="ph-fill ph-house text-[18px]"></i></button>
            </div>
            
            <!-- Center: Title -->
            <div class="flex flex-col items-center">
-               <h1 class="text-white text-[14px] font-bold tracking-wide">Trip to Denver</h1>
-               <span class="text-[9px] text-brand-coral font-medium">Mar 23 – Mar 26</span>
+               <h1 class="text-brand-t1 text-[15px] font-extrabold tracking-wide">Trip to Denver</h1>
+               <span class="text-[10px] text-brand-t3 font-bold uppercase tracking-wider">Mar 23 – Mar 26</span>
            </div>
            
            <!-- Right side: Actions -->
            <div class="flex items-center gap-1.5">
-               <button class="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors"><i class="ph-bold ph-export text-sm"></i></button>
-               <div class="w-7 h-7 rounded-full bg-brand-coral border border-brand-dark text-brand-dark flex justify-center items-center text-[9px] font-bold shadow-sm ml-1">You</div>
+               <button class="w-10 h-10 rounded-[12px] flex items-center justify-center text-brand-t1 hover:bg-brand-bg1 transition-colors"><i class="ph-bold ph-export text-[18px]"></i></button>
            </div>
        </div>
 
-       <div class="p-4 space-y-6 pb-12">
+       <div class="p-5 space-y-8 pb-12">
            
            <!-- Explore & Recommendations Section -->
            <div>
-               <div class="flex justify-between items-center mb-2.5">
-                   <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Explore & Guides</h2>
-                   <button class="text-brand-dark text-[9px] font-bold px-2 py-1 bg-white border border-slate-200 rounded shadow-sm">Get App</button>
+               <div class="flex justify-between items-center mb-4">
+                   <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider">Explore & Guides</h2>
+                   <button class="text-brand-accent text-[10px] font-bold px-3 py-1.5 bg-brand-accentSoft rounded-[8px]">Get App</button>
                </div>
-               <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 -mx-4 px-4">
+               <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
                    <!-- Guide Cards -->
-                   <div class="min-w-[130px] bg-white border border-slate-100 p-2.5 rounded-2xl shadow-sm cursor-pointer hover:border-brand-dark/30">
-                       <div class="h-14 bg-slate-50 rounded-xl mb-2 flex items-center justify-center text-brand-dark"><i class="ph-fill ph-map-pin text-2xl"></i></div>
-                       <p class="text-[10px] font-bold text-slate-800 leading-tight">Best attractions in Denver</p>
-                       <p class="text-[8px] text-slate-500 mt-1 flex items-center font-medium"><i class="ph-fill ph-google-logo mr-1"></i> Google Experts</p>
+                   <div class="min-w-[140px] bg-white border border-brand-border p-3 rounded-[20px] shadow-sm cursor-pointer hover:border-brand-accent/30">
+                       <div class="h-16 bg-blue-50 rounded-[14px] mb-3 flex items-center justify-center text-blue-500"><i class="ph-fill ph-map-pin text-[28px]"></i></div>
+                       <p class="text-[12px] font-bold text-brand-t1 leading-tight">Best attractions in Denver</p>
+                       <p class="text-[10px] text-brand-t3 mt-1.5 flex items-center font-bold"><i class="ph-fill ph-google-logo mr-1"></i> Google Experts</p>
                    </div>
-                   <div class="min-w-[130px] bg-white border border-slate-100 p-2.5 rounded-2xl shadow-sm cursor-pointer hover:border-brand-dark/30">
-                       <div class="h-14 bg-brand-coral/10 rounded-xl mb-2 flex items-center justify-center text-brand-coral"><i class="ph-fill ph-brandy text-2xl"></i></div>
-                       <p class="text-[10px] font-bold text-slate-800 leading-tight">Denver Whiskey Scene</p>
-                       <p class="text-[8px] text-slate-500 mt-1 font-medium">by Janet Kar Wang</p>
+                   <div class="min-w-[140px] bg-white border border-brand-border p-3 rounded-[20px] shadow-sm cursor-pointer hover:border-brand-accent/30">
+                       <div class="h-16 bg-brand-accentSoft rounded-[14px] mb-3 flex items-center justify-center text-brand-accent"><i class="ph-fill ph-brandy text-[28px]"></i></div>
+                       <p class="text-[12px] font-bold text-brand-t1 leading-tight">Denver Whiskey Scene</p>
+                       <p class="text-[10px] text-brand-t3 mt-1.5 font-bold">by Janet Kar Wang</p>
                    </div>
-                   <div class="min-w-[130px] bg-white border border-slate-100 p-2.5 rounded-2xl shadow-sm cursor-pointer hover:border-brand-dark/30">
-                       <div class="h-14 bg-green-50 rounded-xl mb-2 flex items-center justify-center text-green-600"><i class="ph-fill ph-baby text-2xl"></i></div>
-                       <p class="text-[10px] font-bold text-slate-800 leading-tight">Denver with Kids Guide</p>
-                       <p class="text-[8px] text-slate-500 mt-1 font-medium">by Erin Nicole</p>
+                   <div class="min-w-[140px] bg-white border border-brand-border p-3 rounded-[20px] shadow-sm cursor-pointer hover:border-brand-accent/30">
+                       <div class="h-16 bg-green-50 rounded-[14px] mb-3 flex items-center justify-center text-green-600"><i class="ph-fill ph-baby text-[28px]"></i></div>
+                       <p class="text-[12px] font-bold text-brand-t1 leading-tight">Denver with Kids Guide</p>
+                       <p class="text-[10px] text-brand-t3 mt-1.5 font-bold">by Erin Nicole</p>
                    </div>
                </div>
            </div>
 
            <!-- Logistics & Budget Widget -->
            <div>
-               <h2 class="text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wider">Logistics & Budget</h2>
-               <div class="bg-white border border-slate-100 rounded-[1.25rem] p-3 shadow-sm space-y-3">
+               <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4">Logistics & Budget</h2>
+               <div class="bg-white border border-brand-border rounded-[20px] p-4 shadow-sm space-y-4">
                    
-                   <div class="flex items-center justify-between border-b border-slate-50 pb-2">
-                       <div class="flex items-center gap-2 text-brand-dark">
-                           <div class="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center"><i class="ph-fill ph-airplane-tilt text-[14px]"></i></div>
-                           <span class="text-[13px] font-bold">Flight</span>
+                   <div class="flex items-center justify-between border-b border-brand-border pb-3">
+                       <div class="flex items-center gap-3 text-brand-t1">
+                           <div class="w-8 h-8 bg-brand-bg1 rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-airplane-tilt text-[16px] text-brand-t2"></i></div>
+                           <span class="text-[14px] font-bold">Flight</span>
                        </div>
-                       <span class="text-[10px] text-slate-800 font-medium bg-slate-50 px-2 py-0.5 rounded-md">UA452 • Mar 23</span>
+                       <span class="text-[11px] text-brand-t1 font-bold bg-brand-bg1 px-2.5 py-1 rounded-[8px]">UA452 • Mar 23</span>
                    </div>
 
-                   <div class="flex flex-col border-b border-slate-50 pb-2">
-                       <div class="flex items-center justify-between mb-1.5">
-                           <div class="flex items-center gap-2 text-brand-dark">
-                               <div class="w-6 h-6 bg-brand-coral/20 rounded-lg flex items-center justify-center"><i class="ph-fill ph-bed text-brand-coral text-[14px]"></i></div>
-                               <span class="text-[13px] font-bold">Lodging</span>
+                   <div class="flex flex-col border-b border-brand-border pb-3">
+                       <div class="flex items-center justify-between mb-2">
+                           <div class="flex items-center gap-3 text-brand-t1">
+                               <div class="w-8 h-8 bg-brand-accentSoft rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-bed text-brand-accent text-[16px]"></i></div>
+                               <span class="text-[14px] font-bold">Lodging</span>
                            </div>
-                           <i class="ph-fill ph-warning-circle text-brand-coral text-[14px]"></i>
+                           <i class="ph-fill ph-warning-circle text-brand-accent text-[18px]"></i>
                        </div>
-                       <div class="bg-brand-coral/10 p-2 rounded-xl border border-brand-coral/20 flex flex-col gap-2">
-                           <p class="text-[10px] text-brand-dark font-bold leading-tight">No lodging booked for the Mar 23–26 window.</p>
-                           <button class="bg-brand-coral hover:bg-opacity-90 text-brand-dark text-[10px] font-bold py-1.5 rounded-lg shadow-sm transition-colors w-full text-center uppercase tracking-wide">Book hotels</button>
+                       <div class="bg-brand-accentSoft/50 p-3 rounded-[14px] border border-brand-accent/20 flex flex-col gap-2.5">
+                           <p class="text-[11px] text-brand-t2 font-bold leading-tight">No lodging booked for Mar 23–26.</p>
+                           <button class="bg-brand-accent hover:bg-opacity-90 text-white text-[11px] font-bold py-2 rounded-[10px] shadow-sm transition-colors w-full text-center">Book hotels</button>
                        </div>
                    </div>
 
-                   <div class="flex items-center justify-between border-b border-slate-50 pb-2">
-                       <div class="flex items-center gap-2 text-brand-dark">
-                           <div class="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center"><i class="ph-fill ph-car text-[14px]"></i></div>
-                           <span class="text-[13px] font-bold">Rental car</span>
+                   <div class="flex items-center justify-between border-b border-brand-border pb-3">
+                       <div class="flex items-center gap-3 text-brand-t1">
+                           <div class="w-8 h-8 bg-brand-bg1 rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-car text-[16px] text-brand-t2"></i></div>
+                           <span class="text-[14px] font-bold">Rental car</span>
                        </div>
-                       <button class="text-[10px] bg-white border border-slate-200 hover:bg-slate-50 px-2 py-1 rounded-md text-slate-600 font-bold transition-colors">Add info</button>
+                       <button class="text-[11px] bg-white border border-brand-border hover:bg-brand-bg1 px-3 py-1.5 rounded-[8px] text-brand-t2 font-bold transition-colors">Add info</button>
                    </div>
 
                    <!-- Interactive Budget Tracker -->
                    <div class="pt-2">
-                       <div class="flex justify-between items-end mb-2">
-                           <div class="flex items-center gap-2 text-brand-dark">
-                               <div class="w-6 h-6 bg-green-50 rounded-lg flex items-center justify-center"><i class="ph-fill ph-wallet text-green-600 text-[14px]"></i></div>
-                               <span class="text-[13px] font-bold">Budget Tracker</span>
+                       <div class="flex justify-between items-end mb-3">
+                           <div class="flex items-center gap-3 text-brand-t1">
+                               <div class="w-8 h-8 bg-green-50 rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-wallet text-green-600 text-[16px]"></i></div>
+                               <span class="text-[14px] font-bold">Budget Tracker</span>
                            </div>
-                           <span class="text-[10px] font-bold text-slate-500">$180 spent of $1,000</span>
+                           <span class="text-[11px] font-bold text-brand-t3">$180 of $1,000</span>
                        </div>
-                       <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
-                           <div class="h-full bg-brand-coral w-[18%] rounded-full"></div>
+                       <div class="w-full h-2.5 bg-brand-bg1 rounded-full overflow-hidden mb-4 border border-brand-border">
+                           <div class="h-full bg-brand-accent w-[18%] rounded-full"></div>
                        </div>
-                       <div class="space-y-1.5 px-1">
-                           <div class="flex justify-between items-center text-[11px]">
-                               <span class="text-slate-600 flex items-center"><i class="ph-fill ph-fork-knife mr-1.5 text-slate-400"></i> Food & Dining</span>
-                               <span class="font-bold text-slate-800">$180.00</span>
+                       <div class="space-y-2 px-1">
+                           <div class="flex justify-between items-center text-[12px]">
+                               <span class="text-brand-t2 flex items-center font-bold"><i class="ph-fill ph-fork-knife mr-2 text-brand-t3"></i> Food & Dining</span>
+                               <span class="font-extrabold text-brand-t1">$180.00</span>
                            </div>
-                           <div class="flex justify-between items-center text-[11px] opacity-60">
-                               <span class="text-slate-600 flex items-center"><i class="ph-fill ph-airplane-tilt mr-1.5 text-slate-400"></i> Flights (Pending)</span>
-                               <span class="font-bold text-slate-800">$0.00</span>
+                           <div class="flex justify-between items-center text-[12px] opacity-60">
+                               <span class="text-brand-t2 flex items-center font-bold"><i class="ph-fill ph-airplane-tilt mr-2 text-brand-t3"></i> Flights (Pending)</span>
+                               <span class="font-extrabold text-brand-t1">$0.00</span>
                            </div>
                        </div>
-                       <button class="mt-3 bg-brand-dark/5 hover:bg-brand-dark/10 text-brand-dark text-[10px] font-bold py-1.5 rounded-lg transition-colors w-full text-center uppercase tracking-wide">Log an Expense</button>
+                       <button class="mt-4 bg-brand-bg1 hover:bg-brand-bg2 border border-brand-border text-brand-t2 text-[11px] font-bold py-2.5 rounded-[12px] transition-colors w-full text-center">Log an Expense</button>
                    </div>
 
                </div>
            </div>
 
-           <!-- Places to Visit List -->
+           <!-- Places to Visit List (From PlacesScreen.jsx style) -->
            <div>
-               <div class="flex justify-between items-center mb-2.5">
-                   <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Places to Visit</h2>
-                   <button class="text-brand-dark text-[10px] font-bold flex items-center"><i class="ph-bold ph-plus mr-0.5"></i> Add a place</button>
+               <div class="flex justify-between items-center mb-4">
+                   <h2 class="text-xs font-bold text-brand-t2 uppercase tracking-wider">Places to Visit</h2>
+                   <button class="text-brand-t1 text-[11px] font-bold flex items-center bg-white border border-brand-border px-2 py-1 rounded-[8px]"><i class="ph-bold ph-plus mr-1"></i> Add Place</button>
                </div>
-               <div class="flex flex-wrap gap-2">
-                   <span class="bg-white border border-slate-200 text-slate-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center cursor-pointer hover:border-slate-300"><i class="ph-fill ph-leaf text-green-500 mr-1.5 text-[14px]"></i> Denver Botanic Gardens</span>
-                   <span class="bg-white border border-slate-200 text-slate-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center cursor-pointer hover:border-slate-300"><i class="ph-fill ph-baseball text-red-500 mr-1.5 text-[14px]"></i> Coors Field</span>
-                   <span class="bg-white border border-slate-200 text-slate-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center cursor-pointer hover:border-slate-300"><i class="ph-fill ph-fork-knife text-brand-coral mr-1.5 text-[14px]"></i> Steuben's ($18/pp)</span>
+               <div class="flex flex-wrap gap-2.5">
+                   <span class="bg-white border border-brand-border text-brand-t1 text-[12px] font-bold px-3 py-2 rounded-[12px] shadow-sm flex items-center cursor-pointer hover:border-brand-accent/50"><i class="ph-fill ph-leaf text-green-500 mr-2 text-[16px]"></i> Denver Botanic Gardens</span>
+                   <span class="bg-white border border-brand-border text-brand-t1 text-[12px] font-bold px-3 py-2 rounded-[12px] shadow-sm flex items-center cursor-pointer hover:border-brand-accent/50"><i class="ph-fill ph-baseball text-red-500 mr-2 text-[16px]"></i> Coors Field</span>
                </div>
            </div>
 
-           <!-- Itinerary Columns -->
-           <div>
-               <div class="flex items-center justify-between mb-2.5">
-                   <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Itinerary</h2>
-                   <span class="bg-brand-coral text-brand-dark text-[8px] px-1.5 py-0.5 rounded uppercase font-bold shadow-sm flex items-center"><i class="ph-fill ph-lightning mr-0.5"></i> Pro Route Opt</span>
-               </div>
-               
-               <div class="space-y-3">
-                   <!-- Day 1 -->
-                   <div class="bg-white border border-slate-100 rounded-[1.25rem] p-3 shadow-sm">
-                       <div class="flex justify-between items-center border-b border-slate-50 pb-2 mb-2">
-                           <h3 class="text-[13px] font-bold text-brand-dark">Monday, March 23</h3>
-                           <button class="text-[10px] font-bold text-brand-dark bg-slate-50 border border-slate-100 px-2 py-1 rounded-md hover:bg-slate-100 transition-colors">Auto-fill day</button>
-                       </div>
-                       <div class="flex items-center justify-between p-2 bg-slate-50 rounded-xl border border-slate-100 border-dashed mb-2">
-                           <div class="flex items-center gap-2">
-                               <i class="ph-fill ph-airplane-landing text-slate-400 text-[14px]"></i>
-                               <span class="text-[11px] font-bold text-slate-600">Arrive DEN 10:45 AM</span>
-                           </div>
-                       </div>
-                       <p class="text-[11px] text-slate-400 font-medium italic text-center py-1">No plans yet. Drag places here.</p>
-                   </div>
-                   
-                   <!-- Day 2 -->
-                   <div class="bg-white border border-slate-100 rounded-[1.25rem] p-3 shadow-sm">
-                       <div class="flex justify-between items-center border-b border-slate-50 pb-2 mb-2">
-                           <h3 class="text-[13px] font-bold text-brand-dark">Tuesday, March 24</h3>
-                           <button class="text-[10px] font-bold text-brand-dark bg-slate-50 border border-slate-100 px-2 py-1 rounded-md hover:bg-slate-100 transition-colors">Auto-fill day</button>
-                       </div>
-                       <p class="text-[11px] text-slate-400 font-medium italic text-center py-2">No plans yet. Drag places here.</p>
-                   </div>
-               </div>
-           </div>
        </div>
     </div>
 
@@ -811,24 +769,22 @@
       document.getElementById('tab-trips').classList.remove('block');
       document.getElementById('tab-journal').classList.add('hidden');
       document.getElementById('tab-journal').classList.remove('block');
-      document.getElementById('tab-family').classList.add('hidden');
-      document.getElementById('tab-family').classList.remove('block');
 
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
       document.getElementById(`tab-${tabId}`).classList.add('block');
 
-      const navBtns = ['home', 'radar', 'trips', 'journal', 'family'];
+      const navBtns = ['home', 'radar', 'trips', 'journal'];
       navBtns.forEach(btn => {
-        document.getElementById(`nav-btn-${btn}`).classList.remove('text-brand-dark');
-        document.getElementById(`nav-btn-${btn}`).classList.add('text-slate-400');
+        document.getElementById(`nav-btn-${btn}`).classList.remove('text-brand-accent');
+        document.getElementById(`nav-btn-${btn}`).classList.add('text-brand-t3');
         
         const icon = document.getElementById(`nav-icon-${btn}`);
         icon.classList.remove('ph-fill');
         icon.classList.add('ph');
       });
 
-      document.getElementById(`nav-btn-${tabId}`).classList.add('text-brand-dark');
-      document.getElementById(`nav-btn-${tabId}`).classList.remove('text-slate-400');
+      document.getElementById(`nav-btn-${tabId}`).classList.add('text-brand-accent');
+      document.getElementById(`nav-btn-${tabId}`).classList.remove('text-brand-t3');
       
       const activeIcon = document.getElementById(`nav-icon-${tabId}`);
       activeIcon.classList.remove('ph');
@@ -901,20 +857,19 @@
         timeLabel.innerHTML = '2:00<br/>PM';
         
         const dot = document.getElementById('museum-dot');
-        dot.classList.replace('bg-green-500', 'bg-brand-coral');
+        dot.classList.replace('bg-green-500', 'bg-brand-accent');
 
         const museumBlock = document.getElementById('museum-block');
-        museumBlock.classList.replace('border-slate-200/60', 'border-brand-coral/60');
+        museumBlock.classList.replace('border-brand-border', 'border-brand-accent/40');
+        museumBlock.classList.add('bg-brand-accentSoft');
         
         museumBlock.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-brand-coral/20 text-brand-dark flex items-center justify-center shrink-0">
-                <i class="ph-fill ph-users-three text-[14px]"></i>
+            <div class="w-10 h-10 rounded-[14px] bg-brand-accent/20 text-brand-accent flex items-center justify-center shrink-0">
+                <i class="ph-fill ph-users-three text-[18px]"></i>
             </div>
-            <div class="flex-1 pr-2 pt-1.5 pb-0.5">
-                <h4 class="font-bold text-slate-800 text-[13px] truncate leading-none mb-1.5">Event - ABC Kite Fest</h4>
-                <div class="inline-flex items-center gap-1 bg-brand-coral/10 text-brand-dark px-1.5 py-0.5 rounded text-[9px] font-bold border border-brand-coral/20">
-                    <i class="ph-bold ph-clock-counter-clockwise"></i> Rescheduled (Crowds)
-                </div>
+            <div class="flex-1 pr-2 pt-1 pb-0.5">
+                <span class="text-[10px] font-bold text-brand-accent uppercase tracking-wider mb-0.5 block flex items-center gap-1"><i class="ph-bold ph-clock-counter-clockwise"></i> Rescheduled</span>
+                <h4 class="font-bold text-brand-t1 text-[14px] leading-tight">Event - ABC Kite Fest</h4>
             </div>
         `;
 
