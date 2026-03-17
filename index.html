@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Wander AI Prototype</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -46,10 +46,15 @@
     }
   </style>
 </head>
-<body class="bg-gray-200 font-sans min-h-screen flex justify-center items-start overflow-hidden">
+<body class="bg-gray-200 font-sans min-h-screen sm:flex sm:justify-center sm:items-start overflow-hidden m-0 p-0">
 
-  <!-- Mobile Device Frame (Now Full Screen Vertical) -->
-  <div class="w-full h-[100dvh] sm:max-w-[420px] bg-brand-cream relative overflow-hidden flex flex-col shadow-2xl border-x border-slate-300">
+  <!-- Mobile Device Frame (Fills screen on mobile, framed on desktop) -->
+  <div class="fixed inset-0 sm:relative sm:inset-auto sm:w-full sm:h-[100dvh] sm:max-w-[420px] bg-brand-cream overflow-hidden flex flex-col sm:shadow-2xl sm:border-x sm:border-slate-300">
+
+    <!-- Dynamic Island / Status Bar Spacer (Desktop Only) -->
+    <div class="hidden sm:flex h-12 w-full bg-transparent justify-center items-end pb-2 z-[90] absolute top-0 left-0 pointer-events-none">
+      <div class="w-32 h-6 bg-slate-900 rounded-full"></div>
+    </div>
 
     <!-- AUTH SCREEN (Fake Sign-In) -->
     <div id="auth-screen" class="absolute inset-0 bg-brand-cream z-[60] flex flex-col justify-center items-center p-6 transition-all-custom duration-500">
@@ -74,7 +79,7 @@
     </div>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast-container" class="absolute top-12 left-0 right-0 px-4 z-[55] flex flex-col gap-2 pointer-events-none">
+    <div id="toast-container" class="absolute top-14 left-0 right-0 px-4 z-[85] flex flex-col gap-2 pointer-events-none">
       <!-- Interactive Crowd Alert Toast -->
       <div id="toast-crowd" class="bg-brand-dark/95 backdrop-blur-md text-white border border-slate-700 rounded-2xl p-3 shadow-xl flex flex-col gap-2 transform -translate-y-[150%] opacity-0 transition-all-custom pointer-events-auto hidden">
         <div class="flex items-start gap-3">
@@ -102,22 +107,22 @@
         <div id="tab-home" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in block bg-brand-cream">
           
           <!-- Styled Hero Header -->
-          <div class="bg-brand-dark pt-14 pb-12 px-6 relative z-0 rounded-b-[2rem] shadow-sm">
-            <!-- Geometric background accents inspired by the image -->
-            <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none rounded-b-[2rem]">
+          <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
+            <!-- Geometric background accents -->
+            <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
                <div class="absolute -right-12 -top-12 w-48 h-48 border-[1px] border-white rounded-full"></div>
                <div class="absolute -right-6 -top-6 w-36 h-36 border-[1px] border-white rounded-full"></div>
                <div class="absolute right-0 top-0 w-24 h-24 border-[1px] border-white rounded-full"></div>
                <div class="absolute right-6 top-6 w-12 h-12 border-[1px] border-white rounded-full"></div>
             </div>
-            <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Today</h1>
-            <p class="text-brand-coral text-xs font-bold uppercase tracking-widest mt-1 relative z-10 flex items-center">
-                <i class="ph-fill ph-sun mr-1.5 text-sm"></i> Austin, TX • 72°
+            <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Today, Mar 24</h1>
+            <p class="text-brand-coral text-[10px] font-bold uppercase tracking-widest mt-1.5 relative z-10 flex items-center">
+                <i class="ph-fill ph-sun mr-1.5 text-sm"></i> Denver, CO • 68°
             </p>
           </div>
 
-          <!-- The Tighter, Compact Timeline overlapping the header -->
-          <div class="space-y-0 relative z-10 -mt-6 px-4">
+          <!-- The Tighter, Compact Timeline -->
+          <div class="space-y-0 relative z-10 pt-4 px-4">
             
             <!-- Timeline Item 1: Active -->
             <div class="flex items-stretch gap-3 group cursor-pointer">
@@ -133,7 +138,7 @@
                   <div class="bg-brand-dark/5 p-1.5 rounded-lg text-brand-dark"><i class="ph-fill ph-coffee"></i></div>
                   <div class="flex-1">
                     <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-brand-dark text-xs">Veracruz All Natural</h4>
+                        <h4 class="font-bold text-brand-dark text-xs">Little Owl Coffee</h4>
                         <span class="bg-brand-dark text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Now</span>
                     </div>
                     <p class="text-[10px] text-slate-500 flex items-center mt-0.5 font-medium">
@@ -159,6 +164,32 @@
                   <div class="flex-1">
                     <h4 class="font-bold text-slate-800 text-xs">The Thinkery</h4>
                     <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Children's Museum</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Timeline Item 2.5: Lunch with Budget Warning -->
+            <div class="flex items-stretch gap-3 group cursor-pointer">
+              <div class="w-12 text-right flex-shrink-0 pt-2.5">
+                <span class="text-[10px] font-bold text-slate-500 leading-none">12:15 PM</span>
+              </div>
+              <div class="relative flex flex-col items-center self-stretch">
+                <div class="w-2.5 h-2.5 bg-slate-300 rounded-full z-10 mt-2.5 shadow-[0_0_0_2px_#FDFBF7]"></div>
+                <div class="w-0.5 bg-slate-200 flex-1 my-1"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
+                  <div class="flex items-center gap-2 mb-1.5">
+                      <div class="bg-brand-coral/10 p-1.5 rounded-lg text-brand-coral"><i class="ph-fill ph-hamburger"></i></div>
+                      <div class="flex-1">
+                          <h4 class="font-bold text-slate-800 text-xs">Denver Quick Serve</h4>
+                          <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Fast Casual Lunch</p>
+                      </div>
+                  </div>
+                  <!-- Active Concierge Pricing Alert -->
+                  <div class="bg-red-50 text-red-700 p-1.5 rounded-lg text-[9px] flex items-center font-bold mt-1">
+                    <i class="ph-fill ph-warning-circle mr-1.5 text-sm"></i> High cost alert: Users average ~$40/person here.
                   </div>
                 </div>
               </div>
@@ -193,7 +224,10 @@
                 <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
                   <div class="flex items-center gap-2 mb-1.5">
                       <div class="bg-slate-50 p-1.5 rounded-lg text-slate-500"><i class="ph-fill ph-fork-knife"></i></div>
-                      <h4 class="font-bold text-slate-800 text-xs">Terry Black's BBQ</h4>
+                      <div class="flex-1">
+                          <h4 class="font-bold text-slate-800 text-xs">Terry Black's BBQ</h4>
+                          <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Estimated $30/person</p>
+                      </div>
                   </div>
                   <div class="bg-green-50 text-green-700 p-1.5 rounded-lg text-[9px] flex items-center font-bold">
                     <i class="ph-fill ph-credit-card mr-1"></i> Use Sapphire Reserve for 3x dining points.
@@ -204,7 +238,7 @@
 
           </div>
 
-          <!-- UPCOMING SECTION (Directly below today) -->
+          <!-- UPCOMING SECTION -->
           <div class="mt-4 pt-3 border-t border-slate-200/60 px-5">
             <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Upcoming Trips & Events</h2>
             
@@ -241,8 +275,7 @@
 
         <!-- RADAR / VISION TAB CONTENT -->
         <div id="tab-radar" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
-            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm">
-                <!-- Geometric pattern -->
+            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
                 <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
                     <div class="absolute -left-10 -top-10 w-40 h-40 border-[1px] border-white rotate-45"></div>
                     <div class="absolute -left-4 -top-4 w-28 h-28 border-[1px] border-white rotate-45"></div>
@@ -252,6 +285,36 @@
             </div>
 
             <div class="px-5 mt-5">
+                
+                <!-- Section: Family Dining Insights -->
+                <div class="mb-5">
+                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-2.5 flex items-center">
+                        <i class="ph-fill ph-fork-knife mr-1.5"></i> Family Dining Insights
+                    </h2>
+                    <div class="space-y-2">
+                        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex items-center justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-800 text-xs">Steuben's Uptown</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Comfort food, great kids menu.</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">$$</span>
+                                <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Avg $18/pp</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex items-center justify-between">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-800 text-xs">Denver Central Market</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Gourmet food hall, perfect for picky eaters.</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">$$</span>
+                                <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Avg $20/pp</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Section: Parks & Rec -->
                 <div class="mb-5">
                     <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-2.5 flex items-center">
@@ -263,8 +326,8 @@
                                 <span class="bg-white/90 backdrop-blur-sm text-green-700 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide shadow-sm">Playground</span>
                             </div>
                             <div class="p-2.5">
-                                <h3 class="font-bold text-slate-800 text-xs">Pease Park</h3>
-                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Treehouse & splash pad.</p>
+                                <h3 class="font-bold text-slate-800 text-xs">City Park</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Huge playgrounds & lakes.</p>
                             </div>
                         </div>
 
@@ -273,27 +336,8 @@
                                 <span class="bg-white/90 backdrop-blur-sm text-blue-700 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide shadow-sm">Quiet</span>
                             </div>
                             <div class="p-2.5">
-                                <h3 class="font-bold text-slate-800 text-xs">Mueller Lake Park</h3>
-                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Less crowded walking trails.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section: Upcoming Radar -->
-                <div>
-                    <h2 class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-2.5 flex items-center">
-                        <i class="ph-fill ph-sparkle mr-1.5"></i> On The Horizon
-                    </h2>
-                    <div class="space-y-2">
-                        <div class="bg-white border border-slate-100 rounded-2xl p-2.5 flex items-start cursor-pointer hover:shadow-md transition-shadow">
-                            <div class="bg-brand-dark/10 p-2 rounded-lg text-brand-dark mr-2.5 mt-0.5">
-                                <i class="ph-fill ph-guitar-tilt text-sm"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="text-xs font-bold text-slate-800 leading-tight">Van Halen Concert</h4>
-                                <p class="text-[10px] text-slate-500 mt-0.5 mb-2 font-medium">Next Friday • Moody Center</p>
-                                <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold py-1 px-3 rounded-lg transition-colors w-full text-center">Plan Evening</button>
+                                <h3 class="font-bold text-slate-800 text-xs">Washington Park</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5 font-medium">Beautiful gardens and walking paths.</p>
                             </div>
                         </div>
                     </div>
@@ -303,7 +347,7 @@
 
         <!-- TRIPS TAB CONTENT -->
         <div id="tab-trips" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
-            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm">
+            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
                 <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Your Trips</h1>
             </div>
 
@@ -350,10 +394,61 @@
             </div>
         </div>
 
+        <!-- JOURNAL TAB CONTENT -->
+        <div id="tab-journal" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
+            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
+                <h1 class="text-3xl font-extrabold text-white relative z-10 tracking-tight">Journal</h1>
+                <p class="text-brand-coral text-xs mt-1 font-medium relative z-10">Private memories & Apple Journal sync.</p>
+            </div>
+            
+            <div class="px-5 mt-5 space-y-5">
+                <!-- New Entry Box -->
+                <div class="bg-amber-50 border border-amber-200/60 p-4 rounded-[1.25rem] shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5"><i class="ph-bold ph-book-open"></i> New Entry</h3>
+                    </div>
+                    <textarea placeholder="What's on your mind today?" class="w-full bg-transparent border-0 text-sm text-amber-900 placeholder:text-amber-700/50 outline-none resize-none font-medium h-16"></textarea>
+                    <div class="flex justify-end mt-2 pt-3 border-t border-amber-200/60">
+                        <button class="bg-brand-dark hover:bg-opacity-90 transition-colors text-white text-[10px] font-bold px-4 py-2 rounded-lg shadow-sm">Save Note</button>
+                    </div>
+                </div>
+
+                <!-- Feed -->
+                <div class="relative pl-6 border-l-2 border-slate-200/80 space-y-5 ml-2 mt-6">
+                    <!-- Entry 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-1 w-5 h-5 bg-brand-cream border-4 border-brand-dark rounded-full shadow-sm"></div>
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-dark/20 transition-colors">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100"><i class="ph-bold ph-calendar"></i> Mar 24</span>
+                                <span class="text-[9px] font-bold text-brand-dark bg-brand-coral/10 px-1.5 py-0.5 rounded">Trip to Denver</span>
+                            </div>
+                            <p class="text-xs font-medium text-slate-700 leading-relaxed">The kids absolutely loved the Thinkery today. Glad we moved it to the afternoon, it was much quieter. We ended up staying for almost 3 hours!</p>
+                        </div>
+                    </div>
+                    <!-- Entry 2 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-1 w-5 h-5 bg-brand-cream border-4 border-slate-300 rounded-full shadow-sm"></div>
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-dark/20 transition-colors">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100"><i class="ph-bold ph-calendar"></i> Mar 23</span>
+                                <span class="text-[9px] font-bold text-brand-dark bg-brand-coral/10 px-1.5 py-0.5 rounded">Trip to Denver</span>
+                            </div>
+                            <p class="text-xs font-medium text-slate-700 leading-relaxed">Flight landed on time. Denver is beautiful. Checked into the hotel and resting up before BBQ tonight.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sync Indicator -->
+                <div class="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold justify-center mt-6 pt-4 border-t border-slate-200/50">
+                    <i class="ph-fill ph-arrows-clockwise"></i> Synced securely with Apple Journal
+                </div>
+            </div>
+        </div>
+
         <!-- FAMILY TAB CONTENT -->
         <div id="tab-family" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-cream">
-            <div class="bg-brand-dark pt-14 pb-6 px-6 relative z-0 shadow-sm">
-                <!-- Geometric pattern -->
+            <div class="bg-brand-dark pt-14 sm:pt-16 pb-5 px-6 relative z-0 shadow-sm border-b border-brand-dark/20">
                 <div class="absolute inset-0 opacity-10 overflow-hidden pointer-events-none">
                     <div class="absolute right-0 top-0 w-32 h-32 border-[1px] border-white"></div>
                     <div class="absolute right-4 top-4 w-24 h-24 border-[1px] border-white"></div>
@@ -424,30 +519,35 @@
         </div>
 
         <!-- FLOATING ACTION BUTTON (+) -->
-        <button onclick="openPlanModal()" class="absolute bottom-20 right-5 w-14 h-14 bg-brand-coral text-brand-dark rounded-full shadow-lg shadow-brand-coral/30 flex justify-center items-center hover:bg-opacity-90 transition-colors z-30">
+        <button onclick="openPlanModal()" class="absolute bottom-24 sm:bottom-20 right-5 w-14 h-14 bg-brand-coral text-brand-dark rounded-full shadow-lg shadow-brand-coral/30 flex justify-center items-center hover:bg-opacity-90 transition-colors z-30">
             <i class="ph-bold ph-plus text-2xl"></i>
         </button>
 
-        <!-- Bottom Navigation -->
-        <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 pt-2.5 pb-6 px-6 flex justify-between z-40">
-          <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-0.5 transition-colors text-brand-dark">
+        <!-- Bottom Navigation (5 Tabs) -->
+        <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 pt-2.5 pb-8 sm:pb-6 px-4 flex justify-between items-center z-40">
+          <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 transition-colors text-brand-dark w-12">
             <i id="nav-icon-home" class="ph-fill ph-calendar-blank text-2xl"></i>
-            <span class="text-[9px] font-bold">Timeline</span>
+            <span class="text-[8px] font-bold">Timeline</span>
           </button>
           
-          <button onclick="switchTab('radar')" id="nav-btn-radar" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 transition-colors">
+          <button onclick="switchTab('radar')" id="nav-btn-radar" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
             <i id="nav-icon-radar" class="ph ph-compass text-2xl"></i>
-            <span class="text-[9px] font-bold">Radar</span>
+            <span class="text-[8px] font-bold">Radar</span>
           </button>
           
-          <button onclick="switchTab('trips')" id="nav-btn-trips" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 transition-colors">
+          <button onclick="switchTab('trips')" id="nav-btn-trips" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
             <i id="nav-icon-trips" class="ph ph-suitcase text-2xl"></i>
-            <span class="text-[9px] font-bold">Trips</span>
+            <span class="text-[8px] font-bold">Trips</span>
           </button>
 
-          <button onclick="switchTab('family')" id="nav-btn-family" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 transition-colors">
+          <button onclick="switchTab('journal')" id="nav-btn-journal" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
+            <i id="nav-icon-journal" class="ph ph-book-open text-2xl"></i>
+            <span class="text-[8px] font-bold">Journal</span>
+          </button>
+
+          <button onclick="switchTab('family')" id="nav-btn-family" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors w-12">
             <i id="nav-icon-family" class="ph ph-users text-2xl"></i>
-            <span class="text-[9px] font-bold">Family</span>
+            <span class="text-[8px] font-bold">Family</span>
           </button>
         </div>
     </div>
@@ -501,34 +601,39 @@
     </div>
 
     <!-- DETAILED TRIP PLANNING SCREEN (Wanderlog Competitor) -->
-    <div id="trip-detail-screen" class="absolute inset-0 bg-brand-cream z-[80] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out hide-scrollbar overflow-y-auto border-x border-slate-300">
+    <div id="trip-detail-screen" class="absolute inset-0 bg-brand-cream z-[80] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out hide-scrollbar overflow-y-auto">
        
-       <!-- Header with Image -->
-       <div class="relative h-48 bg-brand-dark shrink-0 rounded-b-3xl overflow-hidden">
-           <img src="https://images.unsplash.com/photo-1602800458591-eddda28a498b?auto=format&fit=crop&w=400&q=80" alt="Denver Skyline" class="w-full h-full object-cover opacity-60 mix-blend-luminosity" />
+       <!-- Header with Image (Shorter, snaps to top under Dynamic Island) -->
+       <div class="relative h-32 bg-brand-dark shrink-0 overflow-hidden rounded-b-[2rem]">
+           <img src="https://images.unsplash.com/photo-1602800458591-eddda28a498b?auto=format&fit=crop&w=400&q=80" alt="Denver Skyline" class="w-full h-full object-cover opacity-50 mix-blend-luminosity" />
            <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent"></div>
            
-           <!-- Top Nav Bar -->
-           <div class="absolute top-2 left-0 right-0 px-4 flex justify-between items-center text-white">
-               <button onclick="closeTripDetail()" class="w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/50 transition-colors"><i class="ph-bold ph-caret-left"></i></button>
+           <!-- Top Nav Bar (Sits safely below status bar area) -->
+           <div class="absolute top-12 sm:top-14 left-0 right-0 px-4 flex justify-between items-center text-white z-10">
                <div class="flex items-center gap-2">
-                   <button class="w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/50 transition-colors" title="Undo"><i class="ph-bold ph-arrow-u-up-left text-sm"></i></button>
-                   <button class="w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/50 transition-colors" title="Save/Share"><i class="ph-bold ph-export text-sm"></i></button>
-                   <div class="w-8 h-8 rounded-full bg-brand-coral border-2 border-white text-brand-dark flex justify-center items-center text-[10px] font-bold shadow-sm ml-1">You</div>
+                   <button onclick="closeTripDetail()" class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors"><i class="ph-bold ph-caret-left text-sm"></i></button>
+                   <!-- Added Home Button here for constant navigation access -->
+                   <button onclick="goHomeFromTrip()" class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors"><i class="ph-fill ph-house text-sm"></i></button>
+               </div>
+               <div class="flex items-center gap-2">
+                   <button class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors" title="Undo"><i class="ph-bold ph-arrow-u-up-left text-sm"></i></button>
+                   <button class="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors" title="Save/Share"><i class="ph-bold ph-export text-sm"></i></button>
                </div>
            </div>
            
            <!-- Title & Meta -->
-           <div class="absolute bottom-4 left-4 right-4 text-white">
-               <h1 class="text-2xl font-extrabold shadow-sm leading-tight tracking-tight">Trip to Denver</h1>
-               <div class="flex items-center justify-between mt-1">
-                   <p class="text-[10px] font-bold opacity-100 text-brand-coral bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-md">March 23 – March 26 (4 days)</p>
-                   <button class="bg-white text-brand-dark text-[9px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">Get App</button>
+           <div class="absolute bottom-3 left-4 right-4 text-white z-10">
+               <h1 class="text-xl font-extrabold shadow-sm leading-tight tracking-tight">Trip to Denver</h1>
+               <div class="flex items-center justify-between mt-0.5">
+                   <p class="text-[10px] font-bold opacity-100 text-brand-coral bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-md">March 23 – March 26</p>
+                   <div class="flex items-center gap-2">
+                     <button class="bg-white text-brand-dark text-[9px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">Get App</button>
+                   </div>
                </div>
            </div>
        </div>
 
-       <div class="p-4 space-y-6 pb-24">
+       <div class="p-4 space-y-6 pb-12">
            
            <!-- Explore & Recommendations Section -->
            <div>
@@ -687,13 +792,15 @@
       document.getElementById('tab-radar').classList.remove('block');
       document.getElementById('tab-trips').classList.add('hidden');
       document.getElementById('tab-trips').classList.remove('block');
+      document.getElementById('tab-journal').classList.add('hidden');
+      document.getElementById('tab-journal').classList.remove('block');
       document.getElementById('tab-family').classList.add('hidden');
       document.getElementById('tab-family').classList.remove('block');
 
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
       document.getElementById(`tab-${tabId}`).classList.add('block');
 
-      const navBtns = ['home', 'radar', 'trips', 'family'];
+      const navBtns = ['home', 'radar', 'trips', 'journal', 'family'];
       navBtns.forEach(btn => {
         document.getElementById(`nav-btn-${btn}`).classList.remove('text-brand-dark');
         document.getElementById(`nav-btn-${btn}`).classList.add('text-slate-400');
@@ -739,6 +846,11 @@
 
     function closeTripDetail() {
         document.getElementById('trip-detail-screen').classList.add('translate-x-full');
+    }
+    
+    function goHomeFromTrip() {
+        closeTripDetail();
+        switchTab('home');
     }
 
     // Toast Notification Logic
