@@ -1,1317 +1,1128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Wander AI Prototype</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              bg:         '#F7F8F6',
-              bg1:        '#EEF0EC',
-              bg2:        '#E2E5DF',
-              t1:         '#0F1C14',
-              t2:         '#2E4035',
-              t3:         '#6B8072',
-              accent:     '#1A6B45',
-              accentMid:  '#2A8A5A',
-              accentSoft: '#1A6B4518',
-              accentPop:  '#E8F5EE',
-              gold:       '#C47F17',
-              goldSoft:   '#C47F1715',
-              alert:      '#C0390F',
-              alertSoft:  '#FAECEA',
-              border:     '#D8DDD6',
-              borderMid:  '#C4CCC0',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Wander AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { colors: { brand: {
+  bg:'#F7F8F6', bg1:'#EEF0EC', bg2:'#E2E5DF',
+  t1:'#0F1C14', t2:'#2E4035', t3:'#6B8072',
+  accent:'#1A6B45', accentMid:'#2A8A5A', accentSoft:'#1A6B4518', accentPop:'#E8F5EE',
+  gold:'#C47F17', goldSoft:'#FDF4E3',
+  alert:'#C0390F', alertSoft:'#FAECEA',
+  border:'#D8DDD6', borderMid:'#C4CCC0',
+}}}}}
+</script>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+*{-webkit-font-smoothing:antialiased;box-sizing:border-box;}
+body{background:#C8CCC4;font-family:'DM Sans',sans-serif;margin:0;padding:0;}
+.hide-scrollbar::-webkit-scrollbar{display:none;}
+.hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.animate-in{animation:fadeUp 0.3s ease-out forwards;}
+.tc{transition:all 0.4s cubic-bezier(0.16,1,0.3,1);}
 
-    * { -webkit-font-smoothing: antialiased; }
+/* ── Section header shared ── */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#2E4035;display:flex;align-items:center;gap:6px;}
+.sec-more{font-size:10px;font-weight:700;color:#1A6B45;cursor:pointer;}
 
-    body {
-      background-color: #D4D8D0;
-      font-family: 'DM Sans', sans-serif;
-    }
+/* ── Standard list row (used across ALL tabs) ── */
+.row{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid #EEF0EC;cursor:pointer;border-radius:10px;transition:background 0.15s;margin:0 -6px;}
+.row:hover{background:#EEF0EC;}
+.row:last-child{border-bottom:none;}
+.row-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+.row-body{flex:1;min-width:0;}
+.row-title{font-size:13px;font-weight:600;color:#0F1C14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.row-sub{font-size:10px;color:#6B8072;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.tag{font-size:9px;font-weight:700;padding:3px 8px;border-radius:7px;white-space:nowrap;}
 
-    .font-display { font-family: 'DM Serif Display', serif; }
+/* ── Timeline rows ── */
+.tl-row{display:flex;align-items:flex-start;gap:0;padding:7px 4px;border-bottom:1px solid #EEF0EC;cursor:pointer;border-radius:10px;margin:0 -4px;transition:background 0.15s;}
+.tl-row:hover{background:#EEF0EC;}
+.tl-row-active{background:#E8F5EE!important;}
+.tl-row-active .tl-name{color:#0F6E56;}
+.tl-row-locked{opacity:0.42;cursor:default;}
+.tl-row-locked:hover{background:transparent!important;}
+.tl-t{width:44px;flex-shrink:0;padding-top:1px;}
+.tl-t-main{font-size:12px;font-weight:700;color:#0F1C14;line-height:1.2;display:block;}
+.tl-t-ap{font-size:9px;font-weight:600;color:#6B8072;text-transform:uppercase;letter-spacing:0.04em;display:block;}
+.tl-track{width:20px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:4px;}
+.tl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:2px solid #fff;outline:1.5px solid currentColor;}
+.tl-line{width:1.5px;flex:1;min-height:18px;background:#D8DDD6;margin-top:3px;}
+.tl-content{flex:1;min-width:0;padding-left:6px;}
+.tl-name{font-size:13px;font-weight:600;color:#0F1C14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.tl-detail{font-size:10px;color:#6B8072;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-left:8px;padding-top:1px;}
+.tl-day{display:flex;align-items:center;gap:10px;padding:14px 0 8px;}
+.tl-day-label{font-size:11px;font-weight:700;color:#0F1C14;white-space:nowrap;}
+.tl-day-date{font-size:11px;font-weight:500;color:#6B8072;white-space:nowrap;}
+.tl-day-line{flex:1;height:1px;background:#D8DDD6;}
+.tl-now{display:flex;align-items:center;gap:6px;padding:5px 4px;}
+.tl-now-dot{width:7px;height:7px;border-radius:50%;background:#1A6B45;flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #1A6B4550;}50%{box-shadow:0 0 0 4px #1A6B4500;}}
+.tl-now-line{flex:1;height:1px;background:#1A6B4535;}
+.tl-now-label{font-size:9px;font-weight:700;color:#1A6B45;text-transform:uppercase;letter-spacing:0.08em;}
 
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* ── Cards (horizontal scroll) ── */
+.card{background:#fff;border:1px solid #D8DDD6;border-radius:16px;overflow:hidden;cursor:pointer;flex-shrink:0;transition:border-color 0.15s;}
+.card:hover{border-color:#C4CCC0;}
+.card-img{height:90px;overflow:hidden;position:relative;}
+.card-img img{width:100%;height:100%;object-fit:cover;}
+.card-body{padding:10px 12px;}
+.card-title{font-size:12px;font-weight:700;color:#0F1C14;line-height:1.3;margin-bottom:2px;}
+.card-sub{font-size:10px;color:#6B8072;font-weight:500;}
 
-    @keyframes fadeInSlideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .animate-in { animation: fadeInSlideUp 0.35s ease-out forwards; }
+/* ── Deal row ── */
+.deal-row{display:flex;align-items:center;gap:10px;padding:10px 8px;background:#fff;border:1px solid #D8DDD6;border-radius:14px;cursor:pointer;transition:border-color 0.15s;margin-bottom:8px;}
+.deal-row:hover{border-color:#C4CCC0;}
+.deal-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.deal-body{flex:1;min-width:0;}
+.deal-source{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.deal-badge{font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:0.04em;color:#fff;}
+.deal-was{font-size:9px;font-weight:500;color:#6B8072;text-decoration:line-through;}
+.deal-now{font-size:12px;font-weight:700;color:#0F1C14;}
+.deal-title{font-size:12px;font-weight:700;color:#0F1C14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deal-sub{font-size:10px;color:#6B8072;font-weight:500;margin-top:1px;}
+.deal-pct{font-size:9px;font-weight:700;padding:3px 8px;border-radius:7px;white-space:nowrap;flex-shrink:0;}
 
-    .transition-all-custom { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+/* ── Pill filter bar ── */
+.pill{font-size:10px;font-weight:700;padding:6px 12px;border-radius:9px;border:1px solid #D8DDD6;background:#EEF0EC;color:#2E4035;white-space:nowrap;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+.pill.active{background:#1A6B45;color:#fff;border-color:#1A6B45;}
 
-    /* ── Compact Timeline Rows ──────────────────────────── */
+/* ── Page header ── */
+.pg-header{padding:48px 20px 14px;background:#F7F8F6;border-bottom:1px solid #D8DDD6;position:sticky;top:0;z-index:20;}
+.pg-title{font-size:26px;font-weight:700;color:#0F1C14;font-family:'DM Serif Display',serif;line-height:1;}
+.pg-sub{font-size:11px;font-weight:600;color:#1A6B45;margin-top:4px;text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:5px;}
 
-    /* Day separator */
-    .tl-day {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 0 8px;
-    }
-    .tl-day-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #0F1C14;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-    .tl-day-date {
-      font-size: 11px;
-      font-weight: 500;
-      color: #6B8072;
-      white-space: nowrap;
-    }
-    .tl-day-line {
-      flex: 1;
-      height: 1px;
-      background: #D8DDD6;
-    }
+/* ── Winery / venue card (tall) ── */
+.venue-card{background:#fff;border:1px solid #D8DDD6;border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;margin-bottom:8px;}
+.venue-card:hover{border-color:#C4CCC0;}
+.venue-img{height:100px;overflow:hidden;position:relative;}
+.venue-img img{width:100%;height:100%;object-fit:cover;}
+.venue-body{padding:10px 12px 12px;}
 
-    /* Row */
-    .tl-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
-      padding: 7px 0;
-      border-bottom: 1px solid #EEF0EC;
-      cursor: pointer;
-      transition: background 0.15s;
-      border-radius: 10px;
-      margin: 0 -4px;
-      padding-left: 4px;
-      padding-right: 4px;
-    }
-    .tl-row:hover { background: #EEF0EC; }
-    .tl-row:last-child { border-bottom: none; }
+/* ── Concert event row ── */
+.concert-row{display:flex;align-items:center;gap:10px;padding:10px 8px;background:#fff;border:1px solid #D8DDD6;border-radius:14px;cursor:pointer;transition:border-color 0.15s;margin-bottom:8px;}
+.concert-row:hover{border-color:#C4CCC0;}
+.concert-date{width:36px;flex-shrink:0;text-align:center;}
+.concert-month{font-size:8px;font-weight:700;color:#1A6B45;text-transform:uppercase;letter-spacing:0.06em;display:block;}
+.concert-day{font-size:18px;font-weight:700;color:#0F1C14;display:block;line-height:1;}
 
-    .tl-row-locked {
-      opacity: 0.45;
-      cursor: default;
-    }
-    .tl-row-locked:hover { background: transparent; }
+/* ── Toast ── */
+.toast{background:rgba(247,248,246,0.97);backdrop-filter:blur(12px);border:1px solid #D8DDD6;border-radius:18px;padding:12px;box-shadow:0 4px 24px rgba(15,28,20,0.12);transform:translateY(-150%);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);}
+.toast.show{transform:translateY(0);opacity:1;}
 
-    /* Time column */
-    .tl-t {
-      width: 44px;
-      flex-shrink: 0;
-      padding-top: 1px;
-    }
-    .tl-t-main {
-      font-size: 12px;
-      font-weight: 700;
-      color: #0F1C14;
-      line-height: 1.2;
-      display: block;
-    }
-    .tl-t-ap {
-      font-size: 9px;
-      font-weight: 600;
-      color: #6B8072;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      display: block;
-    }
+/* ── Weekend Brief ── */
+.brief-card{border-radius:20px;overflow:hidden;border:1px solid rgba(26,107,69,0.2);cursor:pointer;margin-bottom:16px;}
 
-    /* Dot + line column */
-    .tl-track {
-      width: 20px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 4px;
-    }
-    .tl-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 2px solid #fff;
-      outline: 1.5px solid currentColor;
-    }
-    .tl-line {
-      width: 1.5px;
-      flex: 1;
-      min-height: 18px;
-      background: #D8DDD6;
-      margin-top: 3px;
-    }
+/* ── Bottom nav ── */
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;width:48px;transition:color 0.15s;color:#6B8072;background:none;border:none;cursor:pointer;}
+.nav-btn.active{color:#1A6B45;}
+.nav-btn span{font-size:9px;font-weight:700;}
 
-    /* Content area */
-    .tl-content {
-      flex: 1;
-      min-width: 0;
-      padding-left: 6px;
-    }
-    .tl-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #0F1C14;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.3;
-    }
-    .tl-detail {
-      font-size: 11px;
-      color: #6B8072;
-      font-weight: 500;
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+/* ── Trip card ── */
+.trip-card{background:#fff;border:1px solid #D8DDD6;border-radius:16px;padding:14px;cursor:pointer;transition:box-shadow 0.15s;margin-bottom:10px;}
+.trip-card:hover{box-shadow:0 2px 12px rgba(15,28,20,0.08);}
+.trip-card.active-trip{border-color:rgba(26,107,69,0.35);border-width:1.5px;}
 
-    /* Right side tags/badges */
-    .tl-right {
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 3px;
-      padding-left: 8px;
-      padding-top: 1px;
-    }
-    .tl-tag {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
+/* ── Journal entry ── */
+.jrnl-entry{background:#fff;border:1px solid #D8DDD6;border-radius:14px;padding:14px;cursor:pointer;transition:border-color 0.15s;margin-left:8px;}
+.jrnl-entry:hover{border-color:#C4CCC0;}
 
-    /* Active/now row highlight */
-    .tl-row-active {
-      background: #E8F5EE !important;
-    }
-    .tl-row-active .tl-name { color: #0F6E56; }
-
-    /* Now marker */
-    .tl-now {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 4px;
-    }
-    .tl-now-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #1A6B45;
-      flex-shrink: 0;
-      animation: pulse-green 2s infinite;
-    }
-    @keyframes pulse-green {
-      0%, 100% { box-shadow: 0 0 0 0 #1A6B4550; }
-      50%       { box-shadow: 0 0 0 4px #1A6B4500; }
-    }
-    .tl-now-line { flex: 1; height: 1px; background: #1A6B4535; }
-    .tl-now-label { font-size: 9px; font-weight: 700; color: #1A6B45; text-transform: uppercase; letter-spacing: 0.08em; }
-
-    /* Upcoming section */
-    .tl-upcoming-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #6B8072;
-      padding: 16px 0 6px;
-    }
-  </style>
+/* ── Camping card ── */
+.camp-card{background:#fff;border:1px solid #D8DDD6;border-radius:16px;overflow:hidden;cursor:pointer;flex-shrink:0;min-width:170px;transition:border-color 0.15s;}
+.camp-card:hover{border-color:#C4CCC0;}
+</style>
 </head>
-<body class="font-sans min-h-screen sm:flex sm:justify-center sm:items-start overflow-hidden m-0 p-0 text-brand-t1" style="font-family:'DM Sans',sans-serif;">
+<body class="min-h-screen flex justify-center items-start">
 
-  <!-- Mobile Device Frame -->
-  <div class="fixed inset-0 sm:relative sm:inset-auto sm:w-full sm:h-[100dvh] sm:max-w-[420px] bg-brand-bg overflow-hidden flex flex-col sm:shadow-2xl sm:border-x sm:border-brand-border">
+<!-- Phone shell -->
+<div class="fixed inset-0 sm:relative sm:inset-auto sm:w-full sm:h-[100dvh] sm:max-w-[420px] bg-brand-bg overflow-hidden flex flex-col sm:shadow-2xl sm:border-x sm:border-brand-border">
 
-    <!-- Dynamic Island / Status Bar Spacer (Desktop Only) -->
-    <div class="hidden sm:flex h-12 w-full bg-transparent justify-center items-end pb-2 z-[90] absolute top-0 left-0 pointer-events-none">
-      <div class="w-32 h-6 bg-black rounded-full"></div>
+  <!-- Dynamic Island -->
+  <div class="hidden sm:flex h-12 w-full absolute top-0 left-0 justify-center items-end pb-2 z-[90] pointer-events-none">
+    <div class="w-28 h-6 bg-black rounded-full"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       AUTH SCREEN
+  ═════════════════════════════════════════════════════ -->
+  <div id="auth-screen" class="absolute inset-0 bg-brand-bg z-[60] flex flex-col justify-center items-center p-6 tc">
+    <div class="flex-1 flex flex-col justify-center items-center w-full">
+      <div class="w-20 h-20 rounded-[26px] flex items-center justify-center mb-6 text-white" style="background:#1A6B45;box-shadow:0 8px 32px rgba(26,107,69,0.3);">
+        <i class="ph-fill ph-paper-plane-tilt text-4xl"></i>
+      </div>
+      <h1 class="text-[44px] font-bold text-brand-t1 mb-2 tracking-tight" style="font-family:'DM Serif Display',serif;">Wander</h1>
+      <p class="text-brand-t3 text-sm font-medium text-center">Your family's weekend, perfectly planned.</p>
     </div>
-
-    <!-- AUTH SCREEN (Fake Sign-In) -->
-    <div id="auth-screen" class="absolute inset-0 bg-brand-bg z-[60] flex flex-col justify-center items-center p-6 transition-all-custom duration-500">
-        <div class="flex-1 flex flex-col justify-center items-center w-full">
-            <div class="w-20 h-20 bg-brand-accent rounded-[2rem] flex items-center justify-center mb-6 shadow-lg shadow-brand-accent/20 text-white">
-                <i class="ph-fill ph-paper-plane-tilt text-4xl"></i>
-            </div>
-            <h1 class="text-5xl font-extrabold text-brand-t1 mb-2 tracking-tight" style="font-family:'DM Serif Display',serif;">Wander</h1>
-            <p class="text-brand-t3 text-center text-sm mb-12 font-medium">Your family's weekend, perfectly planned.</p>
-        </div>
-        
-        <div class="w-full space-y-3 pb-8">
-            <button onclick="login()" class="w-full bg-brand-t1 text-white rounded-[16px] py-4 flex items-center justify-center gap-2 font-bold shadow-md hover:bg-opacity-90 transition-colors">
-                <i class="ph-fill ph-apple-logo text-xl"></i> Continue with Apple
-            </button>
-        </div>
+    <div class="w-full pb-10 space-y-3">
+      <button onclick="login()" class="w-full bg-brand-t1 text-white rounded-[14px] py-4 flex items-center justify-center gap-2 font-bold hover:opacity-90 tc">
+        <i class="ph-fill ph-apple-logo text-xl"></i> Continue with Apple
+      </button>
     </div>
+  </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast-container" class="absolute top-14 left-0 right-0 px-4 z-[85] flex flex-col gap-2 pointer-events-none">
-      <!-- Interactive Crowd Alert Toast -->
-      <div id="toast-crowd" class="bg-brand-t1/95 backdrop-blur-md text-white border border-brand-t2 rounded-[20px] p-3 shadow-xl flex flex-col gap-2 transform -translate-y-[150%] opacity-0 transition-all-custom pointer-events-auto hidden">
-        <div class="flex items-start gap-3">
-            <div class="bg-brand-accent/20 p-1.5 rounded-[12px]">
-              <i class="ph-fill ph-users-three text-xl text-brand-accent"></i>
-            </div>
-            <div class="flex-1 pt-0.5">
-              <h4 class="text-sm font-bold text-white">Thinkery is nearing capacity</h4>
-              <p class="text-xs text-brand-bg2 mt-0.5 leading-snug">Foot traffic is 80% higher than usual. Should I move this to 2:00 PM?</p>
-            </div>
+  <!-- ════════════════════════════════════════════════════
+       TOASTS
+  ═════════════════════════════════════════════════════ -->
+  <div id="toast-zone" class="absolute top-14 left-0 right-0 px-4 z-[85] flex flex-col gap-2 pointer-events-none">
+
+    <!-- Crowd alert toast -->
+    <div id="toast-crowd" class="toast pointer-events-auto hidden" style="border-left:3px solid #1A6B45;">
+      <div class="flex items-start gap-3 mb-2">
+        <div class="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0" style="background:#E8F5EE;">
+          <i class="ph-fill ph-users-three text-brand-accent"></i>
         </div>
-        <div class="flex gap-2 mt-1" id="toast-crowd-actions">
-            <button onclick="acceptReschedule()" class="flex-1 bg-brand-accent hover:bg-opacity-90 text-white text-xs font-bold py-2 rounded-[12px] transition-colors">Yes, Reschedule</button>
-            <button onclick="closeToast('toast-crowd')" class="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 rounded-[12px] transition-colors">Keep Time</button>
-        </div>
-        <div id="toast-crowd-success" class="hidden items-center justify-center text-xs font-bold text-green-400 py-1.5">
-            <i class="ph-bold ph-check mr-1"></i> Rescheduled to 2:00 PM
+        <div class="flex-1">
+          <p class="text-[12px] font-bold text-brand-t1">Kite Fest is at peak capacity</p>
+          <p class="text-[11px] text-brand-t3 mt-0.5 leading-snug">Foot traffic 80% above normal. Move to 2:00 PM?</p>
         </div>
       </div>
-
-      <!-- Getaway Deal Toast -->
-      <div id="toast-deal" class="bg-brand-bg/97 backdrop-blur-md text-brand-t1 border border-brand-border rounded-[20px] p-3 shadow-xl flex flex-col gap-2 transform -translate-y-[150%] opacity-0 transition-all-custom pointer-events-auto hidden" style="border-left: 3px solid #1A6B45;">
-        <div class="flex items-start gap-3">
-            <div class="bg-brand-accent/15 p-1.5 rounded-[12px] shrink-0">
-              <i class="ph-fill ph-airplane-tilt text-xl text-brand-accent"></i>
-            </div>
-            <div class="flex-1 pt-0.5">
-              <div class="flex items-center justify-between mb-0.5">
-                <h4 class="text-sm font-bold text-brand-t1">Flights to Nashville dropped 38%</h4>
-                <button onclick="closeToast('toast-deal')" class="text-brand-t3 hover:text-brand-t1 ml-2 shrink-0"><i class="ph-bold ph-x text-[12px]"></i></button>
-              </div>
-              <p class="text-xs text-brand-t3 leading-snug">Your calendar is open Mar 28–30. Round trip from Austin is <span class="font-bold text-brand-accent">$189/person</span>. ✈️</p>
-            </div>
-        </div>
-        <div class="flex gap-2 mt-1" id="toast-deal-actions">
-            <button onclick="acceptDeal()" class="flex-1 bg-brand-accent hover:bg-opacity-90 text-white text-xs font-bold py-2 rounded-[12px] transition-colors flex items-center justify-center gap-1.5"><i class="ph-fill ph-airplane-tilt text-[13px]"></i> Show me</button>
-            <button onclick="closeToast('toast-deal')" class="flex-1 bg-brand-bg1 hover:bg-brand-bg2 text-brand-t2 text-xs font-bold py-2 rounded-[12px] transition-colors border border-brand-border">Not now</button>
-        </div>
-        <div id="toast-deal-success" class="hidden items-center justify-center text-xs font-bold text-brand-accent py-1.5 gap-1.5">
-            <i class="ph-bold ph-check"></i> Added to your trip ideas — check the Trips tab!
-        </div>
+      <div class="flex gap-2" id="tc-actions">
+        <button onclick="acceptReschedule()" class="flex-1 bg-brand-accent text-white text-[11px] font-bold py-2 rounded-[10px] tc">Yes, reschedule</button>
+        <button onclick="closeToast('toast-crowd')" class="flex-1 bg-brand-bg1 text-brand-t2 text-[11px] font-bold py-2 rounded-[10px] border border-brand-border tc">Keep time</button>
+      </div>
+      <div id="tc-ok" class="hidden items-center justify-center text-[11px] font-bold py-1.5 gap-1" style="color:#1A6B45;">
+        <i class="ph-bold ph-check"></i> Moved to 2:00 PM
       </div>
     </div>
 
-    <!-- MAIN APP WRAPPER -->
-    <div id="main-app" class="flex-1 flex flex-col relative h-full pt-0">
-        
-        <!-- MAIN SCROLLABLE ITINERARY (Home) -->
-        <div id="tab-home" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in block bg-brand-bg">
-          
-          <!-- Header matching JSX files -->
-          <div class="pt-12 sm:pt-14 pb-4 px-5 relative z-0 bg-brand-bg border-b border-brand-border">
-            <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight" style="font-family:'DM Serif Display',serif;">Timeline</h1>
-            <p class="text-brand-accent text-[11px] font-bold uppercase tracking-widest mt-0.5 flex items-center">
-                <i class="ph-fill ph-sun mr-1.5 text-sm"></i> Austin, TX · 72° · Sunny
-            </p>
+    <!-- Deal alert toast -->
+    <div id="toast-deal" class="toast pointer-events-auto hidden" style="border-left:3px solid #C47F17;">
+      <div class="flex items-start gap-3 mb-2">
+        <div class="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0" style="background:#FDF4E3;">
+          <i class="ph-fill ph-airplane-tilt text-brand-gold"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start">
+            <p class="text-[12px] font-bold text-brand-t1">Flights to Nashville −38%</p>
+            <button onclick="closeToast('toast-deal')" class="text-brand-t3 ml-1"><i class="ph-bold ph-x text-[11px]"></i></button>
           </div>
-
-          <div class="px-5 mt-5">
-              
-              <!-- WEEKEND BRIEF CARD (Thursday state) -->
-              <div id="weekend-brief-card" class="mb-5 rounded-[24px] overflow-hidden shadow-md border border-brand-accent/20 cursor-pointer" onclick="dismissBrief()">
-                <div class="bg-gradient-to-br from-[#0F1C14] to-[#1A4028] p-4 relative overflow-hidden">
-                  <!-- Subtle texture -->
-                  <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 20% 80%, #1A6B45 0%, transparent 50%), radial-gradient(circle at 80% 20%, #4a9eff 0%, transparent 50%);"></div>
-                  <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-3">
-                      <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 bg-brand-gold/20 rounded-[10px] flex items-center justify-center">
-                          <i class="ph-fill ph-sparkle text-brand-gold text-[14px]"></i>
-                        </div>
-                        <span class="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Weekend Brief · Thursday</span>
-                      </div>
-                      <button onclick="event.stopPropagation(); dismissBrief()" class="text-white/40 hover:text-white/80 transition-colors"><i class="ph-bold ph-x text-[14px]"></i></button>
-                    </div>
-                    <h3 class="text-white font-extrabold text-[17px] leading-tight mb-1">Your weekend is ready, Miller family.</h3>
-                    <p class="text-white/60 text-[11px] font-medium mb-4">3 ideas matched to Emma &amp; Jake's ages · Austin · 72° &amp; sunny</p>
-                    <!-- Three suggestions row -->
-                    <div class="flex gap-2">
-                      <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-[14px] p-2.5 border border-white/10">
-                        <div class="text-[18px] mb-1">🌄</div>
-                        <p class="text-white text-[10px] font-bold leading-tight">Barton Creek Greenbelt</p>
-                        <p class="text-white/50 text-[9px] font-medium mt-0.5">Sat · 9 AM · Quiet</p>
-                      </div>
-                      <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-[14px] p-2.5 border border-white/10">
-                        <div class="text-[18px] mb-1">🎨</div>
-                        <p class="text-white text-[10px] font-bold leading-tight">Thinkery Museum</p>
-                        <p class="text-white/50 text-[9px] font-medium mt-0.5">Sat · 2 PM · Peak avoided</p>
-                      </div>
-                      <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-[14px] p-2.5 border border-white/10">
-                        <div class="text-[18px] mb-1">🎵</div>
-                        <p class="text-white text-[10px] font-bold leading-tight">Live Music at Zilker</p>
-                        <p class="text-white/50 text-[9px] font-medium mt-0.5">Sun · 6 PM · Free</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="bg-brand-bg1 border-t border-brand-border px-4 py-3 flex items-center justify-between">
-                  <span class="text-[11px] font-bold text-brand-t2 flex items-center gap-1.5"><i class="ph-fill ph-users-three text-brand-t3 text-[13px]"></i> 12 families going to Zilker this Sunday</span>
-                  <span class="text-brand-accent text-[11px] font-bold flex items-center gap-1">Add all <i class="ph-bold ph-arrow-right text-[11px]"></i></span>
-                </div>
-              </div>
-              
-              <!-- Day header: just date, no "Day 1", with map/list toggle -->
-              <div class="flex items-center justify-between mb-1">
-                <div class="tl-day" style="padding-top:6px; flex:1; margin-right:12px;">
-                  <span class="tl-day-label">Tuesday</span>
-                  <span class="tl-day-date">Mar 24</span>
-                  <div class="tl-day-line"></div>
-                </div>
-                <!-- Map / List Toggle -->
-                <div class="bg-brand-bg1 p-1 rounded-[10px] border border-brand-border flex items-center shrink-0">
-                  <button onclick="toggleTimelineView('list')" id="btn-view-list" class="bg-white text-brand-t1 shadow-sm px-2.5 py-1 rounded-[7px] text-[10px] font-bold flex items-center gap-1 transition-colors"><i class="ph-bold ph-list-dashes"></i> List</button>
-                  <button onclick="toggleTimelineView('map')" id="btn-view-map" class="text-brand-t3 px-2.5 py-1 rounded-[7px] text-[10px] font-bold flex items-center gap-1 hover:text-brand-t1 transition-colors"><i class="ph-bold ph-map-trifold"></i> Map</button>
-                </div>
-              </div>
-
-              <!-- LIST VIEW — compact rows -->
-              <div id="view-list" class="block">
-
-                <!-- 9:00 AM — Breakfast (past) -->
-                <div class="tl-row" style="opacity:0.6;">
-                  <div class="tl-t"><span class="tl-t-main">9:00</span><span class="tl-t-ap">AM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#6B8072; background:#6B8072;"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name">Veracruz All Natural</div>
-                    <div class="tl-detail"><i class="ph-fill ph-coffee" style="font-size:10px;margin-right:3px;"></i>Breakfast · S Congress Ave</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#EEF0EC; color:#6B8072;">Done</span>
-                  </div>
-                </div>
-
-                <!-- NOW marker -->
-                <div class="tl-now">
-                  <div class="tl-now-dot"></div>
-                  <span class="tl-now-label">Now · 10:12 AM</span>
-                  <div class="tl-now-line"></div>
-                </div>
-
-                <!-- 10:30 AM — Kite Fest (active) -->
-                <div class="tl-row tl-row-active" id="museum-container">
-                  <div class="tl-t"><span class="tl-t-main" id="museum-time-h" style="color:#0F6E56;">10:30</span><span class="tl-t-ap" id="museum-time-ap">AM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#1A6B45; background:#1A6B45;"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content" id="museum-block">
-                    <div class="tl-name">ABC Kite Festival</div>
-                    <div class="tl-detail"><i class="ph-fill ph-ticket" style="font-size:10px;margin-right:3px;color:#1A6B45;"></i>Zilker Park · Free entry · All ages</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#E8F5EE; color:#1A6B45;">Active</span>
-                  </div>
-                </div>
-
-                <!-- 12:15 PM — Lunch -->
-                <div class="tl-row">
-                  <div class="tl-t"><span class="tl-t-main">12:15</span><span class="tl-t-ap">PM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#C47F17; background:#fff;"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name">Quick Serve</div>
-                    <div class="tl-detail" style="color:#C0390F; font-weight:600;"><i class="ph-fill ph-warning-circle" style="font-size:10px;margin-right:3px;"></i>Avg $40/person · Reservation</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#FDF4E3; color:#C47F17;">Lunch</span>
-                  </div>
-                </div>
-
-                <!-- 1:00 PM — Nap block (locked) -->
-                <div class="tl-row tl-row-locked">
-                  <div class="tl-t"><span class="tl-t-main">1:00</span><span class="tl-t-ap">PM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#D8DDD6; background:#D8DDD6;"></div>
-                    <div class="tl-line" style="background: repeating-linear-gradient(to bottom, #D8DDD6 0px, #D8DDD6 4px, transparent 4px, transparent 7px);"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name" style="color:#6B8072;">Family Nap & Downtime</div>
-                    <div class="tl-detail"><i class="ph-fill ph-lock" style="font-size:10px;margin-right:3px;"></i>Locked · Until 3:30 PM</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#EEF0EC; color:#6B8072; border:1px dashed #C4CCC0;">2.5 hrs</span>
-                  </div>
-                </div>
-
-                <!-- 6:00 PM — Dinner -->
-                <div class="tl-row">
-                  <div class="tl-t"><span class="tl-t-main">6:00</span><span class="tl-t-ap">PM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#185FA5; background:#fff;"></div>
-                    <div class="tl-line" style="background:transparent;"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name">Terry Black's BBQ</div>
-                    <div class="tl-detail"><i class="ph-fill ph-fork-knife" style="font-size:10px;margin-right:3px;"></i>Dinner · Reservation confirmed</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#E8F0FB; color:#185FA5;">Res.</span>
-                    <span class="tl-tag" style="background:#E8F5EE; color:#1A6B45;">3× pts</span>
-                  </div>
-                </div>
-
-                <!-- Add to day -->
-                <div style="padding: 10px 0 4px;">
-                  <button class="w-full py-3 rounded-[12px] border border-dashed border-brand-border text-brand-t3 flex items-center justify-center gap-1.5 hover:bg-brand-bg1 transition-all text-[11px] font-bold">
-                    <i class="ph-bold ph-plus text-[13px]"></i> Add to Tuesday
-                  </button>
-                </div>
-
-              </div>
-
-              <!-- UPCOMING DAYS — Wednesday preview -->
-              <div class="tl-day" style="margin-top:4px;">
-                <span class="tl-day-label">Wednesday</span>
-                <span class="tl-day-date">Mar 25</span>
-                <div class="tl-day-line"></div>
-              </div>
-
-              <div class="block">
-                <div class="tl-row">
-                  <div class="tl-t"><span class="tl-t-main">9:30</span><span class="tl-t-ap">AM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#C4CCC0; background:#fff;"></div>
-                    <div class="tl-line"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name">Emma · Swim Lessons</div>
-                    <div class="tl-detail"><i class="ph-fill ph-student" style="font-size:10px;margin-right:3px;"></i>Big Spring Aquatics · Recurring</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#E6F1FB; color:#185FA5;">Class</span>
-                  </div>
-                </div>
-                <div class="tl-row">
-                  <div class="tl-t"><span class="tl-t-main">6:30</span><span class="tl-t-ap">PM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#C4CCC0; background:#fff;"></div>
-                    <div class="tl-line" style="background:transparent;"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name">Jake · Soccer Practice</div>
-                    <div class="tl-detail"><i class="ph-fill ph-soccer-ball" style="font-size:10px;margin-right:3px;"></i>Bartholomew Park · U8 League</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#E6F1FB; color:#185FA5;">Class</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Denver Trip — upcoming event block -->
-              <div class="tl-day" style="margin-top:4px;">
-                <span class="tl-day-label">Saturday</span>
-                <span class="tl-day-date">Mar 28 · Trip to Denver</span>
-                <div class="tl-day-line"></div>
-              </div>
-              <div class="block" style="margin-bottom:8px;">
-                <div class="tl-row" style="background:#FDF4E3; border-radius:10px;">
-                  <div class="tl-t"><span class="tl-t-main" style="color:#C47F17;">7:45</span><span class="tl-t-ap">AM</span></div>
-                  <div class="tl-track">
-                    <div class="tl-dot" style="color:#C47F17; background:#C47F17;"></div>
-                    <div class="tl-line" style="background:transparent;"></div>
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-name">UA452 · Austin → Denver</div>
-                    <div class="tl-detail"><i class="ph-fill ph-airplane-tilt" style="font-size:10px;margin-right:3px;color:#C47F17;"></i>Depart AUS · Gate B12 · 2h 15m</div>
-                  </div>
-                  <div class="tl-right">
-                    <span class="tl-tag" style="background:#FDF4E3; color:#C47F17; border:1px solid #E8C87040;">Flight</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- MAP VIEW CONTAINER -->
-              <div id="view-map" class="hidden relative w-full h-[520px] bg-brand-bg2 rounded-[24px] border border-brand-border overflow-hidden shadow-inner animate-in">
-                  <!-- Map Background Placeholder -->
-                  <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply" alt="Map View" />
-                  
-                  <!-- Route Line Overlay -->
-                  <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 10;">
-                      <path d="M 100 100 Q 200 180 220 220 T 180 380" fill="none" stroke="#2B4C5F" stroke-width="4" stroke-dasharray="8 8" opacity="0.6" />
-                  </svg>
-
-                  <!-- Map Pins -->
-                  <div class="absolute top-[80px] left-[80px] z-20 flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer">
-                      <div class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
-                          <i class="ph-fill ph-coffee"></i>
-                      </div>
-                      <span class="bg-white text-brand-t1 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm mt-1 border border-brand-border">Veracruz</span>
-                  </div>
-
-                  <div class="absolute top-[220px] left-[220px] z-20 flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer">
-                      <!-- Active/Pulse effect on the upcoming event -->
-                      <div class="absolute w-10 h-10 bg-green-500 rounded-full animate-ping opacity-30"></div>
-                      <div class="bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg ring-4 ring-white z-10">
-                          <i class="ph-fill ph-ticket text-[18px]"></i>
-                      </div>
-                      <span class="bg-brand-t1 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md mt-1 z-10">Kite Fest</span>
-                  </div>
-
-                  <div class="absolute top-[380px] left-[180px] z-20 flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer opacity-70">
-                      <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
-                          <i class="ph-fill ph-fork-knife"></i>
-                      </div>
-                      <span class="bg-white text-brand-t1 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm mt-1 border border-brand-border">Terry Black's</span>
-                  </div>
-
-                  <!-- Floating Map Context Card -->
-                  <div class="absolute bottom-4 left-4 right-4 bg-white rounded-[20px] p-4 shadow-xl border border-brand-border flex items-center gap-4 z-30">
-                       <div class="w-12 h-12 rounded-[14px] bg-green-50 text-green-500 flex items-center justify-center shrink-0">
-                            <i class="ph-fill ph-ticket text-[20px]"></i>
-                        </div>
-                        <div class="flex-1 pr-2">
-                            <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider mb-0.5 block">10:30 AM • Up Next</span>
-                            <h4 class="font-bold text-brand-t1 text-[15px] leading-tight">ABC Kite Fest</h4>
-                            <p class="text-[11px] font-bold text-brand-accent mt-1 flex items-center"><i class="ph-fill ph-navigation-arrow mr-1"></i> 12 min drive</p>
-                        </div>
-                        <button class="w-12 h-12 bg-brand-t1 rounded-[14px] flex items-center justify-center text-white hover:bg-brand-t2 transition-colors shadow-md">
-                            <i class="ph-bold ph-arrow-u-up-right text-[20px]"></i>
-                        </button>
-                  </div>
-              </div>
-
-          </div>
-
-
+          <p class="text-[11px] text-brand-t3 mt-0.5">Calendar open Mar 28–30 · <span class="font-bold text-brand-t1">$189/person</span></p>
         </div>
-
-        <!-- RADAR / VISION TAB CONTENT (Sophisticated Discovery - WEEKEND FOCUSED) -->
-        <div id="tab-radar" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-bg">
-            
-            <!-- Sticky Search Header -->
-            <div class="bg-brand-bg pt-12 sm:pt-14 pb-4 px-5 relative z-20 sticky top-0 border-b border-brand-border">
-                <div class="flex items-center justify-between mb-3">
-                    <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight" style="font-family:'DM Serif Display',serif;">Radar</h1>
-                    <div class="text-right">
-                        <span class="text-[10px] font-bold text-brand-t3 uppercase tracking-wider block leading-tight">It's Friday</span>
-                        <span class="text-[13px] font-bold text-brand-accent">Plan Your Weekend</span>
-                    </div>
-                </div>
-                <!-- Search Bar -->
-                <div class="flex gap-2 mb-4">
-                    <div class="flex-1 bg-brand-bg1 rounded-[16px] border border-brand-border flex items-center px-4">
-                        <i class="ph-bold ph-magnifying-glass text-brand-t3 text-lg"></i>
-                        <input type="text" class="w-full bg-transparent p-3 outline-none text-[14px] font-bold text-brand-t1 placeholder:text-brand-t3" placeholder="Search Austin weekend..." />
-                    </div>
-                </div>
-                
-                <!-- Category Pills (Scrollable) -->
-                <div class="flex gap-2.5 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
-                    <button class="bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5 ring-2 ring-green-200"><i class="ph-fill ph-baby"></i> Kids & Family</button>
-                    <button class="bg-purple-50 text-purple-600 border border-purple-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-calendar"></i> Events</button>
-                    <button class="bg-blue-50 text-blue-600 border border-blue-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-camera"></i> Activities</button>
-                    <button class="bg-green-50 text-green-600 border border-green-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-tree-palm"></i> Parks</button>
-                    <button class="bg-red-50 text-red-600 border border-red-100 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-fork-knife"></i> Restaurants</button>
-                    <button class="bg-brand-accentSoft text-brand-accent border border-brand-accent/20 px-4 py-2 rounded-[12px] text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5"><i class="ph-fill ph-tag"></i> Deals</button>
-                </div>
-            </div>
-
-            <div class="px-5 mt-5 space-y-8">
-                
-                <!-- Kids Activity Picks (new family-first section) -->
-                <div>
-                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
-                        <span class="flex items-center gap-2"><i class="ph-fill ph-baby text-green-600"></i> Picked for Emma &amp; Jake</span>
-                        <span class="text-[10px] text-brand-accent font-bold cursor-pointer">See all</span>
-                    </h2>
-                    <div class="space-y-2.5">
-                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-3 cursor-pointer hover:border-brand-accent/40 transition-colors">
-                            <div class="w-12 h-12 rounded-[14px] bg-purple-50 flex items-center justify-center text-purple-500 shrink-0 text-[22px]">🎨</div>
-                            <div class="flex-1">
-                                <h3 class="font-bold text-brand-t1 text-[13px]">Painting Class — Pinot's Palette</h3>
-                                <p class="text-[10px] text-brand-t3 mt-0.5 font-medium">Ages 5+ · Sat 10 AM · $22/kid · 3 spots left</p>
-                            </div>
-                            <div class="shrink-0"><span class="bg-orange-50 text-orange-600 text-[9px] font-bold px-2 py-1 rounded-[8px] border border-orange-100">Book</span></div>
-                        </div>
-                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-3 cursor-pointer hover:border-brand-accent/40 transition-colors">
-                            <div class="w-12 h-12 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-500 shrink-0 text-[22px]">🏊</div>
-                            <div class="flex-1">
-                                <h3 class="font-bold text-brand-t1 text-[13px]">Barton Springs Pool</h3>
-                                <p class="text-[10px] text-brand-t3 mt-0.5 font-medium">All ages · Sun · Crowd-light before 10 AM · Free entry</p>
-                            </div>
-                            <div class="shrink-0"><span class="bg-green-50 text-green-600 text-[9px] font-bold px-2 py-1 rounded-[8px] border border-green-100">Free</span></div>
-                        </div>
-                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-3 cursor-pointer hover:border-brand-accent/40 transition-colors">
-                            <div class="w-12 h-12 rounded-[14px] bg-yellow-50 flex items-center justify-center shrink-0 text-[22px]">🤸</div>
-                            <div class="flex-1">
-                                <h3 class="font-bold text-brand-t1 text-[13px]">Sky Zone Trampoline Park</h3>
-                                <p class="text-[10px] text-brand-t3 mt-0.5 font-medium">Ages 3+ · Open jump Sat 9–11 AM · $18/kid</p>
-                            </div>
-                            <div class="shrink-0"><span class="bg-brand-accentSoft text-brand-accent text-[9px] font-bold px-2 py-1 rounded-[8px] border border-brand-accent/20">Popular</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Getaway Deal Card (new) -->
-                <div>
-                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center">
-                        <i class="ph-fill ph-airplane-tilt mr-2 text-brand-accent"></i> Getaway Deal · Your Calendar is Open
-                    </h2>
-                    <div onclick="triggerDealToast()" class="rounded-[20px] overflow-hidden shadow-md cursor-pointer border border-brand-accent/20 hover:shadow-lg transition-shadow">
-                      <div class="bg-gradient-to-br from-[#1a2a4a] to-[#0d3b6e] p-4 relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-30" style="background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=60'); background-size: cover; background-position: center;"></div>
-                        <div class="absolute inset-0 bg-gradient-to-br from-[#1a2a4a]/80 to-[#0d3b6e]/60"></div>
-                        <div class="relative z-10">
-                          <div class="flex items-center gap-1.5 mb-2">
-                            <span class="bg-brand-accent text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">38% Off</span>
-                            <span class="text-white/60 text-[10px] font-bold">Limited time</span>
-                          </div>
-                          <h3 class="text-white font-extrabold text-[18px] leading-tight mb-1">Nashville Weekend Getaway</h3>
-                          <p class="text-white/70 text-[11px] font-medium mb-3">Mar 28–30 · Your calendar is clear · Round trip from Austin</p>
-                          <div class="flex items-end gap-3">
-                            <div>
-                              <span class="text-white/40 text-[11px] line-through">$305/person</span>
-                              <span class="text-white font-extrabold text-[22px] ml-1">$189</span>
-                              <span class="text-white/60 text-[11px]"> /person</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="bg-brand-bg1 border-t border-brand-border px-4 py-3 flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-brand-t3 flex items-center gap-1.5"><i class="ph-fill ph-clock text-[12px]"></i> Expires in 4 hours</span>
-                        <span class="text-brand-accent text-[11px] font-bold flex items-center gap-1">View deal <i class="ph-bold ph-arrow-right text-[11px]"></i></span>
-                      </div>
-                    </div>
-                </div>
-
-                <!-- This Weekend in Austin -->
-                <div>
-                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
-                        <span>This Weekend in Austin</span>
-                        <span class="text-[10px] text-brand-accent font-bold cursor-pointer">See all</span>
-                    </h2>
-                    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
-                        <div class="min-w-[200px] bg-white rounded-[20px] overflow-hidden shadow-sm border border-brand-border">
-                            <div class="h-28 bg-brand-bg2 relative">
-                                <img src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=300&q=80" class="w-full h-full object-cover" />
-                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-t1 text-[9px] font-bold px-2 py-1 rounded-[8px] shadow-sm flex items-center"><i class="ph-fill ph-calendar text-blue-500 mr-1.5 text-[12px]"></i> Saturday, 9 AM</div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-brand-t1 text-[15px] mb-1">SFC Farmers' Market</h3>
-                                <p class="text-[11px] text-brand-t3 font-medium">Republic Square • Local food & crafts</p>
-                                <button class="mt-3 bg-brand-bg1 hover:bg-brand-bg2 text-brand-t2 text-[10px] font-bold py-1.5 px-3 rounded-lg transition-colors w-full">Add to Itinerary</button>
-                            </div>
-                        </div>
-                        <div class="min-w-[200px] bg-white rounded-[20px] overflow-hidden shadow-sm border border-brand-border">
-                            <div class="h-28 bg-brand-bg2 relative">
-                                <img src="https://images.unsplash.com/photo-1540039155732-6134b245c614?auto=format&fit=crop&w=300&q=80" class="w-full h-full object-cover" />
-                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-brand-t1 text-[9px] font-bold px-2 py-1 rounded-[8px] shadow-sm flex items-center"><i class="ph-fill ph-calendar text-brand-accent mr-1.5 text-[12px]"></i> Sunday, 6 PM</div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-brand-t1 text-[15px] mb-1">Live Music at Zilker</h3>
-                                <p class="text-[11px] text-brand-t3 font-medium">Zilker Hillside Theater • Free entry</p>
-                                <button class="mt-3 bg-brand-bg1 hover:bg-brand-bg2 text-brand-t2 text-[10px] font-bold py-1.5 px-3 rounded-lg transition-colors w-full">Add to Itinerary</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Featured Weekend Deal -->
-                <div>
-                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center">
-                        <i class="ph-fill ph-tag mr-2 text-brand-accent"></i> Featured Weekend Deal
-                    </h2>
-                    <div class="bg-gradient-to-br from-brand-accent to-orange-400 rounded-[20px] p-4 shadow-md text-white flex items-center justify-between cursor-pointer relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-20" style="background-image: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80'); background-size: cover; background-position: center;"></div>
-                        <div class="relative z-10 pr-4">
-                            <div class="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-white/90 uppercase tracking-wider">
-                                <i class="ph-fill ph-fork-knife"></i> Last Minute Dining
-                            </div>
-                            <h3 class="font-bold text-[16px] leading-tight mb-1">20% Off at Uchi</h3>
-                            <p class="text-[11px] text-white/80 font-medium">Book a table for tonight before 6 PM to claim.</p>
-                        </div>
-                        <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-[12px] flex items-center justify-center shrink-0 z-10">
-                            <i class="ph-bold ph-caret-right text-white text-[18px]"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Top Spots for the Weekend -->
-                <div>
-                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center justify-between">
-                        <span>Top Spots for the Weekend</span>
-                    </h2>
-                    <div class="space-y-3">
-                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-4 cursor-pointer">
-                            <div class="w-14 h-14 rounded-[14px] overflow-hidden shrink-0">
-                                <img src="https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?auto=format&fit=crop&w=150&q=80" class="w-full h-full object-cover"/>
-                            </div>
-                            <div class="flex-1 pr-2">
-                                <h3 class="font-bold text-brand-t1 text-[14px]">Barton Springs Pool</h3>
-                                <p class="text-[11px] text-brand-t3 mt-0.5 font-medium">Great weather forecasted for a swim.</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">Park</span>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-[16px] p-3.5 shadow-sm border border-brand-border flex items-center gap-4 cursor-pointer">
-                            <div class="w-14 h-14 rounded-[14px] overflow-hidden shrink-0">
-                                <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=150&q=80" class="w-full h-full object-cover"/>
-                            </div>
-                            <div class="flex-1 pr-2">
-                                <h3 class="font-bold text-brand-t1 text-[14px]">Loro</h3>
-                                <p class="text-[11px] text-brand-t3 mt-0.5 font-medium">Asian smokehouse • Highly rated</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="bg-red-50 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">$$$</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- TRIPS TAB CONTENT -->
-        <div id="tab-trips" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-bg">
-            <div class="pt-12 sm:pt-14 pb-4 px-5 relative z-0 bg-brand-bg border-b border-brand-border">
-                <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight mb-1" style="font-family:'DM Serif Display',serif;">Your Trips</h1>
-            </div>
-
-            <div class="px-5 mt-5">
-                
-                <!-- Smart Offers & Deals Section -->
-                <div class="mb-8">
-                    <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center">
-                        <i class="ph-fill ph-tag mr-2 text-brand-accent"></i> Smart Offers & Deals
-                    </h2>
-                    <div class="space-y-3">
-                        <!-- Points Deal -->
-                        <div class="bg-gradient-to-br from-[#0a2342] to-[#1a3a60] rounded-[20px] p-4 shadow-md text-white flex items-center justify-between cursor-pointer relative overflow-hidden">
-                            <div class="relative z-10 pr-4">
-                                <div class="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-blue-200">
-                                    <i class="ph-fill ph-credit-card"></i> CHASE SAPPHIRE
-                                </div>
-                                <h3 class="font-bold text-[15px] leading-tight mb-1">Disney Flights for 40k Pts</h3>
-                                <p class="text-[11px] text-blue-100 font-medium">We found a redemption match for your saved Orlando trip.</p>
-                            </div>
-                            <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-[12px] flex items-center justify-center shrink-0 z-10">
-                                <i class="ph-bold ph-airplane-tilt text-white text-[18px]"></i>
-                            </div>
-                        </div>
-                        <!-- Corporate Discount -->
-                        <div class="bg-white rounded-[20px] p-4 shadow-sm border border-brand-border flex items-center justify-between cursor-pointer">
-                            <div class="pr-4">
-                                <div class="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-brand-t3">
-                                    <i class="ph-fill ph-briefcase text-slate-400"></i> HP EMPLOYEE RATE
-                                </div>
-                                <h3 class="font-bold text-[15px] text-brand-t1 leading-tight mb-1">25% Off Avis Rentals</h3>
-                                <p class="text-[11px] text-brand-t3 font-medium">Automatically applied to your Denver itinerary.</p>
-                            </div>
-                            <div class="w-10 h-10 bg-brand-bg1 rounded-[12px] flex items-center justify-center shrink-0 text-brand-t2 border border-brand-border">
-                                <i class="ph-bold ph-car text-[18px]"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trips List -->
-                <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4 flex items-center">
-                    <i class="ph-fill ph-suitcase mr-2 text-brand-t3"></i> Itineraries
-                </h2>
-                <div class="space-y-4">
-                    <!-- In Planning Trip -->
-                    <div onclick="openTripDetail()" class="bg-white border-2 border-brand-accent/20 rounded-[20px] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="bg-brand-accentSoft text-brand-accent text-[10px] font-bold px-2 py-1 rounded-[8px] uppercase tracking-wider flex items-center">
-                                <i class="ph-bold ph-pencil-simple mr-1.5 text-[12px]"></i> Planning
-                            </span>
-                            <i class="ph-bold ph-dots-three text-brand-t3 text-[20px]"></i>
-                        </div>
-                        <h3 class="text-[18px] font-extrabold text-brand-t1">Trip to Denver</h3>
-                        <p class="text-[12px] text-brand-t3 mt-1 flex items-center font-bold">
-                            <i class="ph-fill ph-calendar-blank mr-1.5 text-[14px]"></i> Mar 23 - 26 (4 days)
-                        </p>
-                    </div>
-
-                    <!-- Planned Trip -->
-                    <div class="bg-white border border-brand-border rounded-[20px] p-4 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-1 rounded-[8px] uppercase tracking-wider flex items-center">
-                                <i class="ph-bold ph-check-circle mr-1.5 text-[12px]"></i> Planned
-                            </span>
-                            <i class="ph-bold ph-dots-three text-brand-t3 text-[20px]"></i>
-                        </div>
-                        <h3 class="text-[18px] font-extrabold text-brand-t1">Maldives Anniversary</h3>
-                        <p class="text-[12px] text-brand-t3 mt-1 flex items-center font-bold">
-                            <i class="ph-fill ph-calendar-blank mr-1.5 text-[14px]"></i> Nov 1 - 8
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- JOURNAL TAB CONTENT (Matching JournalNotebookScreen.jsx) -->
-        <div id="tab-journal" class="flex-1 overflow-y-auto pb-32 hide-scrollbar relative animate-in hidden bg-brand-bg">
-            <div class="pt-12 sm:pt-14 pb-4 px-5 relative z-0 bg-brand-bg border-b border-brand-border">
-                <h1 class="text-[28px] font-extrabold text-brand-t1 tracking-tight" style="font-family:'DM Serif Display',serif;">Memories</h1>
-                <p class="text-brand-t3 text-[12px] mt-1 font-bold">Everything you’ve jotted down.</p>
-            </div>
-            
-            <div class="px-5 mt-6 space-y-6">
-                <!-- New Entry Box -->
-                <div class="bg-white border border-brand-border p-4 rounded-[20px] shadow-sm">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[11px] font-bold text-brand-t2 uppercase tracking-wider flex items-center gap-1.5"><i class="ph-bold ph-book-open"></i> New General Entry</h3>
-                    </div>
-                    <textarea placeholder="What's on your mind today?" class="w-full bg-brand-bg1 rounded-[12px] p-3 border-0 text-[14px] text-brand-t1 placeholder:text-brand-t3 outline-none resize-none font-medium h-20 focus:ring-2 focus:ring-brand-accent/20 transition-all"></textarea>
-                    <div class="flex justify-end mt-3">
-                        <button class="bg-brand-t1 hover:bg-opacity-90 transition-colors text-white text-[11px] font-bold px-4 py-2.5 rounded-[12px] shadow-sm">Save Note</button>
-                    </div>
-                </div>
-
-                <!-- Feed Line and Entries -->
-                <div class="relative pl-7 border-l-[2px] border-brand-border space-y-6 ml-2 mt-8 pb-4">
-                    <!-- Entry 0: Hometown weekend -->
-                    <div class="relative">
-                        <div class="absolute -left-[35px] top-1 w-4 h-4 bg-green-500 rounded-full shadow-sm ring-[4px] ring-brand-bg z-10"></div>
-                        <div class="bg-white p-4 rounded-[20px] shadow-sm border border-brand-border cursor-pointer hover:border-brand-accent/30 transition-colors ml-2">
-                            <div class="flex flex-wrap items-center gap-2 mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-t3 flex items-center gap-1 bg-brand-bg1 px-2 py-1 rounded-[8px]"><i class="ph-bold ph-calendar text-[12px]"></i> Mar 16</span>
-                                <span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-[8px] border border-green-100 flex items-center gap-1"><i class="ph-fill ph-house text-[10px]"></i> Weekend in Austin</span>
-                            </div>
-                            <p class="text-[14px] font-medium text-brand-t1 leading-relaxed">Sky Zone was a hit — Jake didn't want to leave. Emma's painting class came out amazing. Wander found the quiet window at Barton Springs perfectly, no crowds at all.</p>
-                        </div>
-                    </div>
-                    <!-- Entry 1 -->
-                    <div class="relative">
-                        <div class="absolute -left-[35px] top-1 w-4 h-4 bg-brand-accent rounded-full shadow-sm ring-[4px] ring-brand-bg z-10"></div>
-                        <div class="bg-white p-4 rounded-[20px] shadow-sm border border-brand-border cursor-pointer hover:border-brand-accent/30 transition-colors ml-2">
-                            <div class="flex flex-wrap items-center gap-2 mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-t3 flex items-center gap-1 bg-brand-bg1 px-2 py-1 rounded-[8px]"><i class="ph-bold ph-calendar text-[12px]"></i> Mar 24</span>
-                                <span class="text-[10px] font-bold text-brand-accent bg-brand-accentSoft px-2 py-1 rounded-[8px]">Trip to Denver</span>
-                            </div>
-                            <p class="text-[14px] font-medium text-brand-t1 leading-relaxed">The kids absolutely loved the Thinkery today. Glad we moved it to the afternoon, it was much quieter. We ended up staying for almost 3 hours!</p>
-                        </div>
-                    </div>
-                    <!-- Entry 2 -->
-                    <div class="relative">
-                        <div class="absolute -left-[35px] top-1 w-4 h-4 bg-brand-t3 rounded-full shadow-sm ring-[4px] ring-brand-bg z-10"></div>
-                        <div class="bg-white p-4 rounded-[20px] shadow-sm border border-brand-border cursor-pointer hover:border-brand-accent/30 transition-colors ml-2">
-                            <div class="flex flex-wrap items-center gap-2 mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-t3 flex items-center gap-1 bg-brand-bg1 px-2 py-1 rounded-[8px]"><i class="ph-bold ph-calendar text-[12px]"></i> Mar 23</span>
-                                <span class="text-[10px] font-bold text-brand-accent bg-brand-accentSoft px-2 py-1 rounded-[8px]">Trip to Denver</span>
-                            </div>
-                            <p class="text-[14px] font-medium text-brand-t1 leading-relaxed">Flight landed on time. Denver is beautiful. Checked into the hotel and resting up before BBQ tonight.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sync Indicator -->
-                <div class="flex items-center gap-1.5 text-brand-t3 text-[11px] font-bold justify-center pt-2">
-                    <i class="ph-bold ph-arrows-clockwise text-[14px]"></i> Synced securely with Apple Journal
-                </div>
-            </div>
-        </div>
-
-        <!-- FLOATING ACTION BUTTON (+) -->
-        <button onclick="openPlanModal()" class="absolute bottom-24 sm:bottom-20 right-5 w-14 h-14 bg-brand-accent text-white rounded-[18px] shadow-lg shadow-brand-accent/25 flex justify-center items-center hover:bg-brand-accentMid transition-colors z-30">
-            <i class="ph-bold ph-plus text-[24px]"></i>
-        </button>
-
-        <!-- Bottom Navigation -->
-        <div class="absolute bottom-0 w-full bg-brand-bg/95 backdrop-blur-md border-t border-brand-border pt-3 pb-8 sm:pb-6 px-5 flex justify-between items-center z-40">
-          <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 transition-colors text-brand-accent w-12">
-            <i id="nav-icon-home" class="ph-fill ph-calendar-blank text-[24px]"></i>
-            <span class="text-[9px] font-bold">Timeline</span>
-          </button>
-          
-          <button onclick="switchTab('radar')" id="nav-btn-radar" class="flex flex-col items-center gap-1 text-brand-t3 hover:text-brand-t1 transition-colors w-12">
-            <i id="nav-icon-radar" class="ph ph-compass text-[24px]"></i>
-            <span class="text-[9px] font-bold">Radar</span>
-          </button>
-          
-          <button onclick="switchTab('trips')" id="nav-btn-trips" class="flex flex-col items-center gap-1 text-brand-t3 hover:text-brand-t1 transition-colors w-12">
-            <i id="nav-icon-trips" class="ph ph-suitcase text-[24px]"></i>
-            <span class="text-[9px] font-bold">Trips</span>
-          </button>
-
-          <button onclick="switchTab('journal')" id="nav-btn-journal" class="flex flex-col items-center gap-1 text-brand-t3 hover:text-brand-t1 transition-colors w-12">
-            <i id="nav-icon-journal" class="ph ph-book-open text-[24px]"></i>
-            <span class="text-[9px] font-bold">Journal</span>
-          </button>
-        </div>
-    </div>
-
-    <!-- NEW "PLAN A TRIP" MODAL -->
-    <div id="plan-modal" class="absolute inset-0 bg-brand-t1/40 backdrop-blur-sm z-50 flex items-end opacity-0 pointer-events-none transition-all-custom">
-        <div id="plan-modal-content" class="bg-brand-bg w-full h-[75%] rounded-t-[32px] p-6 transform translate-y-full transition-all-custom flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[22px] font-extrabold text-brand-t1">What are we planning?</h2>
-                <button onclick="closePlanModal()" class="w-8 h-8 bg-brand-bg1 rounded-full flex justify-center items-center text-brand-t3 hover:bg-brand-border transition-colors">
-                    <i class="ph-bold ph-x text-[14px]"></i>
-                </button>
-            </div>
-
-            <!-- Planning Options -->
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
-                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
-                        <i class="ph-fill ph-airplane-tilt text-[22px]"></i>
-                    </div>
-                    <span class="font-bold text-brand-t1 text-[13px]">Vacation</span>
-                </button>
-                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
-                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
-                        <i class="ph-fill ph-ticket text-[22px]"></i>
-                    </div>
-                    <span class="font-bold text-brand-t1 text-[13px]">Event</span>
-                </button>
-                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
-                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
-                        <i class="ph-fill ph-map-pin text-[22px]"></i>
-                    </div>
-                    <span class="font-bold text-brand-t1 text-[13px]">Place</span>
-                </button>
-                <button class="bg-white border border-brand-border p-4 rounded-[20px] flex flex-col items-center text-center hover:border-brand-accent transition-colors shadow-sm group">
-                    <div class="w-12 h-12 bg-brand-bg1 rounded-[14px] flex justify-center items-center text-brand-t1 mb-2 group-hover:bg-brand-accentSoft group-hover:text-brand-accent transition-colors">
-                        <i class="ph-fill ph-envelope-simple-open text-[22px]"></i>
-                    </div>
-                    <span class="font-bold text-brand-t1 text-[13px]">Sync Gmail</span>
-                </button>
-            </div>
-
-            <!-- AI Prompt Bar -->
-            <div class="mt-auto relative">
-                <input type="text" placeholder="Or just tell me: 'Trip to Denver'" class="w-full bg-white border border-brand-border text-[14px] font-bold rounded-[16px] py-4 pl-4 pr-12 text-brand-t1 placeholder:text-brand-t3 focus:outline-none focus:ring-2 focus:ring-brand-accent shadow-sm">
-                <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-brand-accent text-white rounded-[12px] flex justify-center items-center hover:bg-brand-accentMid transition-colors">
-                    <i class="ph-bold ph-paper-plane-right text-[18px]"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- DETAILED TRIP PLANNING SCREEN -->
-    <div id="trip-detail-screen" class="absolute inset-0 bg-brand-bg z-[80] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out hide-scrollbar overflow-y-auto border-x border-brand-border">
-       
-       <!-- Ultra-Compact Sticky Nav Header -->
-       <div class="bg-brand-bg pt-12 sm:pt-14 pb-3 px-4 flex items-center justify-between sticky top-0 z-50 border-b border-brand-border">
-           <!-- Left side: Navigation Back/Home -->
-           <div class="flex items-center gap-1.5">
-               <button onclick="closeTripDetail()" class="w-10 h-10 rounded-[12px] flex items-center justify-center text-brand-t1 hover:bg-brand-bg1 transition-colors"><i class="ph-bold ph-caret-left text-[20px]"></i></button>
-               <button onclick="goHomeFromTrip()" class="w-10 h-10 rounded-[12px] flex items-center justify-center text-brand-t1 hover:bg-brand-bg1 transition-colors"><i class="ph-fill ph-house text-[18px]"></i></button>
-           </div>
-           
-           <!-- Center: Title -->
-           <div class="flex flex-col items-center">
-               <h1 class="text-brand-t1 text-[15px] font-extrabold tracking-wide">Trip to Denver</h1>
-               <span class="text-[10px] text-brand-t3 font-bold uppercase tracking-wider">Mar 23 – Mar 26</span>
-           </div>
-           
-           <!-- Right side: Actions -->
-           <div class="flex items-center gap-1.5">
-               <button class="w-10 h-10 rounded-[12px] flex items-center justify-center text-brand-t1 hover:bg-brand-bg1 transition-colors"><i class="ph-bold ph-export text-[18px]"></i></button>
-           </div>
-       </div>
-
-       <div class="p-5 space-y-8 pb-12">
-           
-           <!-- Explore & Recommendations Section -->
-           <div>
-               <div class="flex justify-between items-center mb-4">
-                   <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider">Explore & Guides</h2>
-                   <button class="text-brand-accent text-[10px] font-bold px-3 py-1.5 bg-brand-accentSoft rounded-[8px]">Get App</button>
-               </div>
-               <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-5 px-5">
-                   <!-- Guide Cards -->
-                   <div class="min-w-[140px] bg-white border border-brand-border p-3 rounded-[20px] shadow-sm cursor-pointer hover:border-brand-accent/30">
-                       <div class="h-16 bg-blue-50 rounded-[14px] mb-3 flex items-center justify-center text-blue-500"><i class="ph-fill ph-map-pin text-[28px]"></i></div>
-                       <p class="text-[12px] font-bold text-brand-t1 leading-tight">Best attractions in Denver</p>
-                       <p class="text-[10px] text-brand-t3 mt-1.5 flex items-center font-bold"><i class="ph-fill ph-google-logo mr-1"></i> Google Experts</p>
-                   </div>
-                   <div class="min-w-[140px] bg-white border border-brand-border p-3 rounded-[20px] shadow-sm cursor-pointer hover:border-brand-accent/30">
-                       <div class="h-16 bg-brand-accentSoft rounded-[14px] mb-3 flex items-center justify-center text-brand-accent"><i class="ph-fill ph-brandy text-[28px]"></i></div>
-                       <p class="text-[12px] font-bold text-brand-t1 leading-tight">Denver Whiskey Scene</p>
-                       <p class="text-[10px] text-brand-t3 mt-1.5 font-bold">by Janet Kar Wang</p>
-                   </div>
-                   <div class="min-w-[140px] bg-white border border-brand-border p-3 rounded-[20px] shadow-sm cursor-pointer hover:border-brand-accent/30">
-                       <div class="h-16 bg-green-50 rounded-[14px] mb-3 flex items-center justify-center text-green-600"><i class="ph-fill ph-baby text-[28px]"></i></div>
-                       <p class="text-[12px] font-bold text-brand-t1 leading-tight">Denver with Kids Guide</p>
-                       <p class="text-[10px] text-brand-t3 mt-1.5 font-bold">by Erin Nicole</p>
-                   </div>
-               </div>
-           </div>
-
-           <!-- Logistics & Budget Widget -->
-           <div>
-               <h2 class="text-[12px] font-bold text-brand-t2 uppercase tracking-wider mb-4">Logistics & Budget</h2>
-               <div class="bg-white border border-brand-border rounded-[20px] p-4 shadow-sm space-y-4">
-                   
-                   <div class="flex items-center justify-between border-b border-brand-border pb-3">
-                       <div class="flex items-center gap-3 text-brand-t1">
-                           <div class="w-8 h-8 bg-brand-bg1 rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-airplane-tilt text-[16px] text-brand-t2"></i></div>
-                           <span class="text-[14px] font-bold">Flight</span>
-                       </div>
-                       <span class="text-[11px] text-brand-t1 font-bold bg-brand-bg1 px-2.5 py-1 rounded-[8px]">UA452 • Mar 23</span>
-                   </div>
-
-                   <div class="flex flex-col border-b border-brand-border pb-3">
-                       <div class="flex items-center justify-between mb-2">
-                           <div class="flex items-center gap-3 text-brand-t1">
-                               <div class="w-8 h-8 bg-brand-accentSoft rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-bed text-brand-accent text-[16px]"></i></div>
-                               <span class="text-[14px] font-bold">Lodging</span>
-                           </div>
-                           <i class="ph-fill ph-warning-circle text-brand-accent text-[18px]"></i>
-                       </div>
-                       <div class="bg-brand-accentSoft/50 p-3 rounded-[14px] border border-brand-accent/20 flex flex-col gap-2.5">
-                           <p class="text-[11px] text-brand-t2 font-bold leading-tight">No lodging booked for Mar 23–26.</p>
-                           <button class="bg-brand-accent hover:bg-opacity-90 text-white text-[11px] font-bold py-2 rounded-[10px] shadow-sm transition-colors w-full text-center">Book hotels</button>
-                       </div>
-                   </div>
-
-                   <div class="flex items-center justify-between border-b border-brand-border pb-3">
-                       <div class="flex items-center gap-3 text-brand-t1">
-                           <div class="w-8 h-8 bg-brand-bg1 rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-car text-[16px] text-brand-t2"></i></div>
-                           <span class="text-[14px] font-bold">Rental car</span>
-                       </div>
-                       <button class="text-[11px] bg-white border border-brand-border hover:bg-brand-bg1 px-3 py-1.5 rounded-[8px] text-brand-t2 font-bold transition-colors">Add info</button>
-                   </div>
-
-                   <!-- Interactive Budget Tracker -->
-                   <div class="pt-2">
-                       <div class="flex justify-between items-end mb-3">
-                           <div class="flex items-center gap-3 text-brand-t1">
-                               <div class="w-8 h-8 bg-green-50 rounded-[10px] flex items-center justify-center"><i class="ph-fill ph-wallet text-green-600 text-[16px]"></i></div>
-                               <span class="text-[14px] font-bold">Budget Tracker</span>
-                           </div>
-                           <span class="text-[11px] font-bold text-brand-t3">$180 of $1,000</span>
-                       </div>
-                       <div class="w-full h-2.5 bg-brand-bg1 rounded-full overflow-hidden mb-4 border border-brand-border">
-                           <div class="h-full bg-brand-accent w-[18%] rounded-full"></div>
-                       </div>
-                       <div class="space-y-2 px-1">
-                           <div class="flex justify-between items-center text-[12px]">
-                               <span class="text-brand-t2 flex items-center font-bold"><i class="ph-fill ph-fork-knife mr-2 text-brand-t3"></i> Food & Dining</span>
-                               <span class="font-extrabold text-brand-t1">$180.00</span>
-                           </div>
-                           <div class="flex justify-between items-center text-[12px] opacity-60">
-                               <span class="text-brand-t2 flex items-center font-bold"><i class="ph-fill ph-airplane-tilt mr-2 text-brand-t3"></i> Flights (Pending)</span>
-                               <span class="font-extrabold text-brand-t1">$0.00</span>
-                           </div>
-                       </div>
-                       <button class="mt-4 bg-brand-bg1 hover:bg-brand-bg2 border border-brand-border text-brand-t2 text-[11px] font-bold py-2.5 rounded-[12px] transition-colors w-full text-center">Log an Expense</button>
-                   </div>
-
-               </div>
-           </div>
-
-           <!-- Places to Visit List (From PlacesScreen.jsx style) -->
-           <div>
-               <div class="flex justify-between items-center mb-4">
-                   <h2 class="text-xs font-bold text-brand-t2 uppercase tracking-wider">Places to Visit</h2>
-                   <button class="text-brand-t1 text-[11px] font-bold flex items-center bg-white border border-brand-border px-2 py-1 rounded-[8px]"><i class="ph-bold ph-plus mr-1"></i> Add Place</button>
-               </div>
-               <div class="flex flex-wrap gap-2.5">
-                   <span class="bg-white border border-brand-border text-brand-t1 text-[12px] font-bold px-3 py-2 rounded-[12px] shadow-sm flex items-center cursor-pointer hover:border-brand-accent/50"><i class="ph-fill ph-leaf text-green-500 mr-2 text-[16px]"></i> Denver Botanic Gardens</span>
-                   <span class="bg-white border border-brand-border text-brand-t1 text-[12px] font-bold px-3 py-2 rounded-[12px] shadow-sm flex items-center cursor-pointer hover:border-brand-accent/50"><i class="ph-fill ph-baseball text-red-500 mr-2 text-[16px]"></i> Coors Field</span>
-               </div>
-           </div>
-
-       </div>
+      </div>
+      <div class="flex gap-2" id="td-actions">
+        <button onclick="acceptDeal()" class="flex-1 bg-brand-gold text-white text-[11px] font-bold py-2 rounded-[10px] tc">Show me</button>
+        <button onclick="closeToast('toast-deal')" class="flex-1 bg-brand-bg1 text-brand-t2 text-[11px] font-bold py-2 rounded-[10px] border border-brand-border tc">Not now</button>
+      </div>
+      <div id="td-ok" class="hidden items-center justify-center text-[11px] font-bold py-1.5 gap-1 text-brand-gold">
+        <i class="ph-bold ph-check"></i> Added to Trips!
+      </div>
     </div>
 
   </div>
 
-  <script>
-    // Login Logic
-    function login() {
-        const authScreen = document.getElementById('auth-screen');
-        authScreen.classList.add('opacity-0', 'pointer-events-none');
-        
-        // Show crowd alert first
-        setTimeout(() => {
-            showToast('toast-crowd');
-        }, 1200);
+  <!-- ════════════════════════════════════════════════════
+       MAIN APP
+  ═════════════════════════════════════════════════════ -->
+  <div id="main-app" class="flex-1 flex flex-col relative h-full">
 
-        // Show getaway deal toast after crowd toast clears
-        setTimeout(() => {
-            showToast('toast-deal');
-        }, 5500);
-    }
+    <!-- ── TAB: TIMELINE ──────────────────────────────────── -->
+    <div id="tab-home" class="flex-1 overflow-y-auto pb-28 hide-scrollbar animate-in block bg-brand-bg">
 
-    // Dismiss Weekend Brief card
-    function dismissBrief() {
-        const card = document.getElementById('weekend-brief-card');
-        card.style.transition = 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(-8px)';
-        card.style.maxHeight = card.offsetHeight + 'px';
-        setTimeout(() => {
-            card.style.maxHeight = '0';
-            card.style.marginBottom = '0';
-            card.style.overflow = 'hidden';
-        }, 200);
-        setTimeout(() => { card.remove(); }, 500);
-    }
+      <div class="pg-header" style="position:sticky;">
+        <div class="pg-title">Timeline</div>
+        <div class="pg-sub"><i class="ph-fill ph-sun"></i> Austin, TX · 72° · Sunny</div>
+      </div>
 
-    // Trigger deal toast from Radar tab deal card
-    function triggerDealToast() {
-        showToast('toast-deal');
-        switchTab('home');
-    }
+      <div class="px-4 mt-4">
 
-    // Accept getaway deal
-    function acceptDeal() {
-        document.getElementById('toast-deal-actions').classList.add('hidden');
-        const success = document.getElementById('toast-deal-success');
-        success.classList.remove('hidden');
-        success.classList.add('flex');
-        setTimeout(() => { closeToast('toast-deal'); }, 2200);
-    }
+        <!-- Weekend Brief -->
+        <div class="brief-card mb-4" id="brief-card" onclick="dismissBrief()">
+          <div style="background:linear-gradient(135deg,#0F1C14 0%,#1A4028 100%);padding:16px;position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;opacity:0.04;background:radial-gradient(circle at 20% 80%,#1A6B45,transparent 60%),radial-gradient(circle at 80% 20%,#C47F17,transparent 60%);"></div>
+            <div style="position:relative;z-index:1;">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div style="width:26px;height:26px;background:rgba(196,127,23,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                    <i class="ph-fill ph-sparkle text-brand-gold text-[13px]"></i>
+                  </div>
+                  <span style="font-size:9px;font-weight:700;color:#C47F17;text-transform:uppercase;letter-spacing:0.1em;">Weekend Brief · Thu</span>
+                </div>
+                <button onclick="event.stopPropagation();dismissBrief()" style="color:rgba(255,255,255,0.35);background:none;border:none;cursor:pointer;"><i class="ph-bold ph-x text-[13px]"></i></button>
+              </div>
+              <p style="color:#fff;font-size:15px;font-weight:700;margin-bottom:4px;font-family:'DM Serif Display',serif;">Your weekend is ready, Miller family.</p>
+              <p style="color:rgba(255,255,255,0.5);font-size:10px;font-weight:500;margin-bottom:14px;">Matched to Emma & Jake's ages · Austin · Sunny all weekend</p>
+              <div class="flex gap-2">
+                <div style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px;">
+                  <div style="font-size:16px;margin-bottom:4px;">🌿</div>
+                  <p style="color:#fff;font-size:9px;font-weight:700;line-height:1.3;">Barton Creek Greenbelt</p>
+                  <p style="color:rgba(255,255,255,0.45);font-size:8px;font-weight:500;margin-top:2px;">Sat · 9 AM · Quiet</p>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px;">
+                  <div style="font-size:16px;margin-bottom:4px;">🎨</div>
+                  <p style="color:#fff;font-size:9px;font-weight:700;line-height:1.3;">Thinkery Museum</p>
+                  <p style="color:rgba(255,255,255,0.45);font-size:8px;font-weight:500;margin-top:2px;">Sat · 2 PM · Crowds avoided</p>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px;">
+                  <div style="font-size:16px;margin-bottom:4px;">🎵</div>
+                  <p style="color:#fff;font-size:9px;font-weight:700;line-height:1.3;">Zilker Live Music</p>
+                  <p style="color:rgba(255,255,255,0.45);font-size:8px;font-weight:500;margin-top:2px;">Sun · 6 PM · Free</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="background:#EEF0EC;border-top:1px solid #D8DDD6;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:10px;font-weight:600;color:#2E4035;display:flex;align-items:center;gap:5px;"><i class="ph-fill ph-users-three" style="color:#6B8072;font-size:12px;"></i>12 Austin families going to Zilker Sun</span>
+            <span style="font-size:10px;font-weight:700;color:#1A6B45;display:flex;align-items:center;gap:3px;">Add all <i class="ph-bold ph-arrow-right" style="font-size:10px;"></i></span>
+          </div>
+        </div>
 
-    // Tab Switching Logic
-    function switchTab(tabId) {
-      document.getElementById('tab-home').classList.add('hidden');
-      document.getElementById('tab-home').classList.remove('block');
-      document.getElementById('tab-radar').classList.add('hidden');
-      document.getElementById('tab-radar').classList.remove('block');
-      document.getElementById('tab-trips').classList.add('hidden');
-      document.getElementById('tab-trips').classList.remove('block');
-      document.getElementById('tab-journal').classList.add('hidden');
-      document.getElementById('tab-journal').classList.remove('block');
+        <!-- Tuesday header + toggle -->
+        <div class="flex items-center justify-between mb-1">
+          <div class="tl-day" style="flex:1;margin-right:10px;padding-top:4px;">
+            <span class="tl-day-label">Tuesday</span>
+            <span class="tl-day-date">Mar 24</span>
+            <div class="tl-day-line"></div>
+          </div>
+          <div style="background:#EEF0EC;border:1px solid #D8DDD6;border-radius:10px;padding:3px;display:flex;gap:2px;flex-shrink:0;">
+            <button onclick="tlView('list')" id="tl-list-btn" style="background:#fff;color:#0F1C14;font-size:9px;font-weight:700;padding:4px 10px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;box-shadow:0 1px 3px rgba(0,0,0,0.06);"><i class="ph-bold ph-list-dashes"></i>List</button>
+            <button onclick="tlView('map')" id="tl-map-btn" style="color:#6B8072;font-size:9px;font-weight:700;padding:4px 10px;border-radius:7px;border:none;cursor:pointer;background:transparent;display:flex;align-items:center;gap:4px;"><i class="ph-bold ph-map-trifold"></i>Map</button>
+          </div>
+        </div>
 
-      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabId}`).classList.add('block');
+        <!-- List view -->
+        <div id="view-list">
+          <!-- Breakfast (past) -->
+          <div class="tl-row" style="opacity:0.55;">
+            <div class="tl-t"><span class="tl-t-main">9:00</span><span class="tl-t-ap">AM</span></div>
+            <div class="tl-track"><div class="tl-dot" style="color:#6B8072;background:#6B8072;"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-name">Veracruz All Natural</div><div class="tl-detail"><i class="ph-fill ph-coffee" style="font-size:10px;margin-right:3px;"></i>Breakfast · S Congress Ave</div></div>
+            <div class="tl-right"><span class="tag" style="background:#EEF0EC;color:#6B8072;">Done</span></div>
+          </div>
+          <!-- Now -->
+          <div class="tl-now"><div class="tl-now-dot"></div><span class="tl-now-label">Now · 10:12 AM</span><div class="tl-now-line"></div></div>
+          <!-- Kite Fest active -->
+          <div class="tl-row tl-row-active" id="museum-container">
+            <div class="tl-t"><span class="tl-t-main" id="museum-time-h" style="color:#0F6E56;">10:30</span><span class="tl-t-ap" id="museum-time-ap">AM</span></div>
+            <div class="tl-track"><div class="tl-dot" style="color:#1A6B45;background:#1A6B45;"></div><div class="tl-line"></div></div>
+            <div class="tl-content" id="museum-block"><div class="tl-name">ABC Kite Festival</div><div class="tl-detail"><i class="ph-fill ph-ticket" style="font-size:10px;margin-right:3px;color:#1A6B45;"></i>Zilker Park · Free · All ages</div></div>
+            <div class="tl-right"><span class="tag" style="background:#E8F5EE;color:#1A6B45;border:1px solid rgba(26,107,69,0.2);">Active</span></div>
+          </div>
+          <!-- Lunch -->
+          <div class="tl-row">
+            <div class="tl-t"><span class="tl-t-main">12:15</span><span class="tl-t-ap">PM</span></div>
+            <div class="tl-track"><div class="tl-dot" style="color:#C47F17;background:#fff;"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><div class="tl-name">Quick Serve</div><div class="tl-detail" style="color:#C0390F;font-weight:600;"><i class="ph-fill ph-warning-circle" style="font-size:10px;margin-right:3px;"></i>Avg $40/person · Reservation</div></div>
+            <div class="tl-right"><span class="tag" style="background:#FDF4E3;color:#C47F17;">Lunch</span></div>
+          </div>
+          <!-- Nap locked -->
+          <div class="tl-row tl-row-locked">
+            <div class="tl-t"><span class="tl-t-main">1:00</span><span class="tl-t-ap">PM</span></div>
+            <div class="tl-track"><div class="tl-dot" style="color:#D8DDD6;background:#D8DDD6;"></div><div class="tl-line" style="background:repeating-linear-gradient(to bottom,#D8DDD6 0,#D8DDD6 4px,transparent 4px,transparent 7px);"></div></div>
+            <div class="tl-content"><div class="tl-name" style="color:#6B8072;">Family Nap & Downtime</div><div class="tl-detail"><i class="ph-fill ph-lock" style="font-size:10px;margin-right:3px;"></i>Locked · Until 3:30 PM</div></div>
+            <div class="tl-right"><span class="tag" style="background:#EEF0EC;color:#6B8072;border:1px dashed #C4CCC0;">2.5 hrs</span></div>
+          </div>
+          <!-- Dinner -->
+          <div class="tl-row">
+            <div class="tl-t"><span class="tl-t-main">6:00</span><span class="tl-t-ap">PM</span></div>
+            <div class="tl-track"><div class="tl-dot" style="color:#185FA5;background:#fff;"></div><div class="tl-line" style="background:transparent;"></div></div>
+            <div class="tl-content"><div class="tl-name">Terry Black's BBQ</div><div class="tl-detail"><i class="ph-fill ph-fork-knife" style="font-size:10px;margin-right:3px;"></i>Dinner · Reservation confirmed</div></div>
+            <div class="tl-right"><span class="tag" style="background:#E8F0FB;color:#185FA5;">Res.</span><span class="tag" style="background:#E8F5EE;color:#1A6B45;">3× pts</span></div>
+          </div>
+          <div style="padding:10px 0 4px;">
+            <button class="w-full" style="padding:10px;border-radius:12px;border:1.5px dashed #D8DDD6;background:transparent;color:#6B8072;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
+              <i class="ph-bold ph-plus text-[13px]"></i>Add to Tuesday
+            </button>
+          </div>
+        </div>
 
-      const navBtns = ['home', 'radar', 'trips', 'journal'];
-      navBtns.forEach(btn => {
-        document.getElementById(`nav-btn-${btn}`).classList.remove('text-brand-accent');
-        document.getElementById(`nav-btn-${btn}`).classList.add('text-brand-t3');
-        
-        const icon = document.getElementById(`nav-icon-${btn}`);
-        icon.classList.remove('ph-fill');
-        icon.classList.add('ph');
-      });
+        <!-- Map view -->
+        <div id="view-map" style="display:none;">
+          <div style="border-radius:18px;overflow:hidden;height:360px;position:relative;border:1px solid #D8DDD6;">
+            <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80" style="width:100%;height:100%;object-fit:cover;opacity:0.6;"/>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;background:#fff;border-radius:14px;padding:12px;border:1px solid #D8DDD6;display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;background:#E8F5EE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ph-fill ph-ticket text-brand-accent text-[18px]"></i></div>
+              <div style="flex:1;"><p style="font-size:10px;color:#6B8072;font-weight:600;">10:30 AM · Up Next</p><p style="font-size:13px;font-weight:700;color:#0F1C14;">ABC Kite Festival</p><p style="font-size:10px;color:#1A6B45;font-weight:700;">12 min drive</p></div>
+              <div style="width:36px;height:36px;background:#0F1C14;border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="ph-bold ph-arrow-u-up-right text-white text-[16px]"></i></div>
+            </div>
+          </div>
+        </div>
 
-      document.getElementById(`nav-btn-${tabId}`).classList.add('text-brand-accent');
-      document.getElementById(`nav-btn-${tabId}`).classList.remove('text-brand-t3');
-      
-      const activeIcon = document.getElementById(`nav-icon-${tabId}`);
-      activeIcon.classList.remove('ph');
-      activeIcon.classList.add('ph-fill');
-    }
+        <!-- Wednesday -->
+        <div class="tl-day"><span class="tl-day-label">Wednesday</span><span class="tl-day-date">Mar 25</span><div class="tl-day-line"></div></div>
+        <div class="tl-row">
+          <div class="tl-t"><span class="tl-t-main">9:30</span><span class="tl-t-ap">AM</span></div>
+          <div class="tl-track"><div class="tl-dot" style="color:#C4CCC0;background:#fff;"></div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="tl-name">Emma · Swim Lessons</div><div class="tl-detail"><i class="ph-fill ph-student" style="font-size:10px;margin-right:3px;"></i>Big Spring Aquatics · Recurring</div></div>
+          <div class="tl-right"><span class="tag" style="background:#E6F1FB;color:#185FA5;">Class</span></div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-t"><span class="tl-t-main">6:30</span><span class="tl-t-ap">PM</span></div>
+          <div class="tl-track"><div class="tl-dot" style="color:#C4CCC0;background:#fff;"></div><div class="tl-line" style="background:transparent;"></div></div>
+          <div class="tl-content"><div class="tl-name">Jake · Soccer Practice</div><div class="tl-detail"><i class="ph-fill ph-soccer-ball" style="font-size:10px;margin-right:3px;"></i>Bartholomew Park · U8 League</div></div>
+          <div class="tl-right"><span class="tag" style="background:#E6F1FB;color:#185FA5;">Class</span></div>
+        </div>
 
-    // Toggle Map/List View Logic
-    function toggleTimelineView(view) {
-        if (view === 'list') {
-            document.getElementById('view-list').classList.remove('hidden');
-            document.getElementById('view-list').classList.add('block');
-            document.getElementById('view-map').classList.add('hidden');
-            
-            document.getElementById('btn-view-list').className = 'bg-white text-brand-t1 shadow-sm px-3 py-1.5 rounded-[8px] text-[10px] font-bold flex items-center gap-1.5 transition-colors';
-            document.getElementById('btn-view-map').className = 'text-brand-t3 px-3 py-1.5 rounded-[8px] text-[10px] font-bold flex items-center gap-1.5 hover:text-brand-t1 transition-colors';
-        } else {
-            document.getElementById('view-list').classList.add('hidden');
-            document.getElementById('view-list').classList.remove('block');
-            document.getElementById('view-map').classList.remove('hidden');
-            
-            document.getElementById('btn-view-map').className = 'bg-white text-brand-t1 shadow-sm px-3 py-1.5 rounded-[8px] text-[10px] font-bold flex items-center gap-1.5 transition-colors';
-            document.getElementById('btn-view-list').className = 'text-brand-t3 px-3 py-1.5 rounded-[8px] text-[10px] font-bold flex items-center gap-1.5 hover:text-brand-t1 transition-colors';
-        }
-    }
+        <!-- Denver flight -->
+        <div class="tl-day"><span class="tl-day-label">Saturday</span><span class="tl-day-date">Mar 28 · Trip to Denver</span><div class="tl-day-line"></div></div>
+        <div class="tl-row" style="background:#FDF4E3;border-radius:10px;">
+          <div class="tl-t"><span class="tl-t-main" style="color:#C47F17;">7:45</span><span class="tl-t-ap">AM</span></div>
+          <div class="tl-track"><div class="tl-dot" style="color:#C47F17;background:#C47F17;"></div><div class="tl-line" style="background:transparent;"></div></div>
+          <div class="tl-content"><div class="tl-name">UA452 · Austin → Denver</div><div class="tl-detail" style="color:#C47F17;font-weight:600;"><i class="ph-fill ph-airplane-tilt" style="font-size:10px;margin-right:3px;"></i>Depart AUS · Gate B12 · 2h 15m</div></div>
+          <div class="tl-right"><span class="tag" style="background:#FDF4E3;color:#C47F17;border:1px solid rgba(196,127,23,0.3);">Flight</span></div>
+        </div>
 
-    // Modal Logic
-    function openPlanModal() {
-        const modal = document.getElementById('plan-modal');
-        const content = document.getElementById('plan-modal-content');
-        modal.classList.remove('pointer-events-none', 'opacity-0');
-        modal.classList.add('opacity-100');
-        content.classList.remove('translate-y-full');
-        content.classList.add('translate-y-0');
-    }
+      </div><!-- /px-4 -->
+    </div><!-- /tab-home -->
 
-    function closePlanModal() {
-        const modal = document.getElementById('plan-modal');
-        const content = document.getElementById('plan-modal-content');
-        content.classList.remove('translate-y-0');
-        content.classList.add('translate-y-full');
-        setTimeout(() => {
-            modal.classList.remove('opacity-100');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-        }, 300);
-    }
+    <!-- ── TAB: RADAR ─────────────────────────────────────── -->
+    <div id="tab-radar" class="flex-1 overflow-y-auto pb-28 hide-scrollbar animate-in hidden bg-brand-bg">
 
-    // Detailed Trip Screen Logic
-    function openTripDetail() {
-        document.getElementById('trip-detail-screen').classList.remove('translate-x-full');
-    }
+      <div class="pg-header">
+        <div class="flex items-center justify-between mb-3">
+          <div class="pg-title">Radar</div>
+          <div class="text-right"><span style="font-size:10px;font-weight:700;color:#6B8072;display:block;text-transform:uppercase;letter-spacing:0.08em;">Friday</span><span style="font-size:12px;font-weight:700;color:#1A6B45;">Plan your weekend</span></div>
+        </div>
+        <!-- Search -->
+        <div style="background:#EEF0EC;border:1px solid #D8DDD6;border-radius:14px;display:flex;align-items:center;padding:0 14px;margin-bottom:12px;">
+          <i class="ph-bold ph-magnifying-glass text-brand-t3 text-[16px]"></i>
+          <input type="text" placeholder="Search Austin…" style="flex:1;background:transparent;border:none;outline:none;padding:11px 10px;font-size:13px;font-weight:500;color:#0F1C14;font-family:'DM Sans',sans-serif;" />
+        </div>
+        <!-- Pills -->
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1 -mx-5 px-5">
+          <button class="pill active" onclick="setPill(this)"><i class="ph-fill ph-baby"></i>Family</button>
+          <button class="pill" onclick="setPill(this)"><i class="ph-fill ph-music-note"></i>Concerts</button>
+          <button class="pill" onclick="setPill(this)"><i class="ph-fill ph-mountains"></i>Outdoors</button>
+          <button class="pill" onclick="setPill(this)"><i class="ph-fill ph-tent"></i>Camping</button>
+          <button class="pill" onclick="setPill(this)"><i class="ph-fill ph-wine"></i>Wine & Spirits</button>
+          <button class="pill" onclick="setPill(this)"><i class="ph-fill ph-tag"></i>Deals</button>
+          <button class="pill" onclick="setPill(this)"><i class="ph-fill ph-calendar"></i>Events</button>
+        </div>
+      </div>
 
-    function closeTripDetail() {
-        document.getElementById('trip-detail-screen').classList.add('translate-x-full');
-    }
-    
-    function goHomeFromTrip() {
-        closeTripDetail();
-        switchTab('home');
-    }
+      <div class="px-4 mt-4 space-y-6">
 
-    // Toast Notification Logic
-    function showToast(toastId) {
-      const el = document.getElementById(toastId);
-      el.classList.remove('hidden');
-      setTimeout(() => {
-        el.classList.remove('-translate-y-[150%]', 'opacity-0');
-        el.classList.add('translate-y-0', 'opacity-100');
-      }, 10);
-    }
+        <!-- Learning nudge -->
+        <div id="learn-nudge" style="background:#fff;border:1px solid rgba(26,107,69,0.25);border-radius:14px;padding:12px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;" onclick="dismissNudge()">
+          <div style="width:34px;height:34px;background:#E8F5EE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="ph-fill ph-sparkle text-brand-accent text-[16px]"></i>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:12px;font-weight:700;color:#0F1C14;line-height:1.3;">You've added 4 outdoor activities this month.</p>
+            <p style="font-size:11px;color:#6B8072;margin-top:2px;">Does your family camp overnight? I'll find campgrounds & trails. <span style="color:#1A6B45;font-weight:700;">Tell me →</span></p>
+          </div>
+          <button onclick="event.stopPropagation();dismissNudge()" style="color:#6B8072;background:none;border:none;cursor:pointer;flex-shrink:0;"><i class="ph-bold ph-x text-[11px]"></i></button>
+        </div>
 
-    function closeToast(toastId) {
-      const el = document.getElementById(toastId);
-      el.classList.remove('translate-y-0', 'opacity-100');
-      el.classList.add('-translate-y-[150%]', 'opacity-0');
-      setTimeout(() => {
-        el.classList.add('hidden');
-      }, 400); 
-    }
+        <!-- Picked for your kids -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-baby text-brand-accent"></i>Picked for Emma & Jake</span><span class="sec-more">See all</span></div>
+          <div>
+            <div class="row">
+              <div class="row-icon" style="background:#F3ECFF;color:#6B35C7;">🎨</div>
+              <div class="row-body"><div class="row-title">Painting Class — Pinot's Palette</div><div class="row-sub">Ages 5+ · Sat 10 AM · $22/kid · 3 spots left</div></div>
+              <div class="row-right"><span class="tag" style="background:#FDF4E3;color:#C47F17;">Book</span></div>
+            </div>
+            <div class="row">
+              <div class="row-icon" style="background:#FFF8E1;color:#E8A000;">🤸</div>
+              <div class="row-body"><div class="row-title">Sky Zone Trampoline Park</div><div class="row-sub">Ages 3+ · Open jump Sat 9–11 AM · $18/kid</div></div>
+              <div class="row-right"><span class="tag" style="background:#E8F5EE;color:#1A6B45;">Popular</span></div>
+            </div>
+            <div class="row">
+              <div class="row-icon" style="background:#E6F1FB;color:#185FA5;">🏊</div>
+              <div class="row-body"><div class="row-title">Barton Springs Pool</div><div class="row-sub">All ages · Sun · Crowd-light before 10 AM · Free</div></div>
+              <div class="row-right"><span class="tag" style="background:#E8F5EE;color:#1A6B45;">Free</span></div>
+            </div>
+          </div>
+        </div>
 
-    // Interactive Reschedule Logic
-    function acceptReschedule() {
-        document.getElementById('toast-crowd-actions').classList.add('hidden');
-        document.getElementById('toast-crowd-success').classList.remove('hidden');
-        document.getElementById('toast-crowd-success').classList.add('flex');
+        <!-- Concerts this weekend -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-music-note" style="color:#6B35C7;"></i>Concerts & Live Music</span><span class="sec-more">See all</span></div>
 
-        const timeH = document.getElementById('museum-time-h');
-        const timeAp = document.getElementById('museum-time-ap');
-        if (timeH) { timeH.textContent = '2:00'; timeH.style.color = '#C47F17'; }
-        if (timeAp) timeAp.textContent = 'PM';
+          <div class="concert-row">
+            <div class="concert-date"><span class="concert-month">MAR</span><span class="concert-day">25</span></div>
+            <div style="width:1px;height:36px;background:#EEF0EC;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:12px;font-weight:700;color:#0F1C14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">The Avett Brothers</p>
+              <p style="font-size:10px;color:#6B8072;font-weight:500;margin-top:1px;">Moody Center · 7:30 PM · $45+</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
+              <span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;background:#EDE9FF;color:#6B35C7;">Bandsintown</span>
+              <span class="tag" style="background:#EDE9FF;color:#6B35C7;">Tickets</span>
+            </div>
+          </div>
 
-        const museumBlock = document.getElementById('museum-block');
-        if (museumBlock) {
-            museumBlock.innerHTML = `
-              <div class="tl-name" style="color:#0F6E56;">ABC Kite Festival</div>
-              <div class="tl-detail" style="color:#1A6B45; font-weight:600;"><i class="ph-fill ph-clock-counter-clockwise" style="font-size:10px;margin-right:3px;"></i>Moved to avoid peak crowds · Zilker Park</div>
-            `;
-        }
-        const container = document.getElementById('museum-container');
-        if (container) {
-            container.classList.remove('tl-row-active');
-            container.style.background = '#FDF9EE';
-        }
-        setTimeout(() => { closeToast('toast-crowd'); }, 2000);
-    }
-  </script>
+          <div class="concert-row">
+            <div class="concert-date"><span class="concert-month">MAR</span><span class="concert-day">26</span></div>
+            <div style="width:1px;height:36px;background:#EEF0EC;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:12px;font-weight:700;color:#0F1C14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Zilker Hillside Theater</p>
+              <p style="font-size:10px;color:#1A6B45;font-weight:600;margin-top:1px;">Free outdoor concert · 6 PM · All ages</p>
+            </div>
+            <div style="flex-shrink:0;"><span class="tag" style="background:#E8F5EE;color:#1A6B45;">Free</span></div>
+          </div>
+
+          <div class="concert-row">
+            <div class="concert-date"><span class="concert-month">APR</span><span class="concert-day">1</span></div>
+            <div style="width:1px;height:36px;background:#EEF0EC;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:12px;font-weight:700;color:#0F1C14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Khruangbin</p>
+              <p style="font-size:10px;color:#6B8072;font-weight:500;margin-top:1px;">ACL Live · 9 PM · $55+</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
+              <span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;background:#EEF0EC;color:#2E4035;">Songkick</span>
+              <span class="tag" style="background:#EEF0EC;color:#2E4035;">Tickets</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wine & Distilleries (Day Date) -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-wine" style="color:#7B3FA0;"></i>Wine & Spirits · Day Date Ideas</span><span class="sec-more">See all</span></div>
+          <p style="font-size:11px;color:#6B8072;font-weight:500;margin-bottom:10px;">Within 60 miles of Austin · Kid-free day trip territory</p>
+
+          <div class="venue-card">
+            <div class="venue-img">
+              <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=70" />
+              <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.92);padding:3px 8px;border-radius:7px;font-size:9px;font-weight:700;color:#7B3FA0;display:flex;align-items:center;gap:4px;"><i class="ph-fill ph-wine" style="font-size:11px;"></i>Winery · 45 min</div>
+            </div>
+            <div class="venue-body">
+              <div class="flex items-start justify-between">
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:13px;font-weight:700;color:#0F1C14;margin-bottom:2px;">Becker Vineyards</p>
+                  <p style="font-size:10px;color:#6B8072;font-weight:500;">Stonewall · Lavender fields + tasting room</p>
+                </div>
+                <span class="tag" style="background:#F5EEFF;color:#7B3FA0;flex-shrink:0;margin-left:8px;">Add</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">Tasting $18/pp</span>
+                <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">Open Sat–Sun</span>
+                <span style="font-size:9px;font-weight:700;color:#1A6B45;background:#E8F5EE;padding:3px 7px;border-radius:6px;">⭐ 4.8</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="venue-card">
+            <div class="venue-img">
+              <img src="https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=400&q=70" />
+              <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.92);padding:3px 8px;border-radius:7px;font-size:9px;font-weight:700;color:#8B4513;display:flex;align-items:center;gap:4px;"><i class="ph-fill ph-brandy" style="font-size:11px;"></i>Distillery · 30 min</div>
+            </div>
+            <div class="venue-body">
+              <div class="flex items-start justify-between">
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:13px;font-weight:700;color:#0F1C14;margin-bottom:2px;">Treaty Oak Distilling</p>
+                  <p style="font-size:10px;color:#6B8072;font-weight:500;">Dripping Springs · Whiskey, gin, rum + food</p>
+                </div>
+                <span class="tag" style="background:#FDF4E3;color:#C47F17;flex-shrink:0;margin-left:8px;">Add</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">Tours $15/pp</span>
+                <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">Restaurant on-site</span>
+                <span style="font-size:9px;font-weight:700;color:#1A6B45;background:#E8F5EE;padding:3px 7px;border-radius:6px;">⭐ 4.7</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="venue-card">
+            <div class="venue-img">
+              <img src="https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=400&q=70" />
+              <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.92);padding:3px 8px;border-radius:7px;font-size:9px;font-weight:700;color:#7B3FA0;display:flex;align-items:center;gap:4px;"><i class="ph-fill ph-wine" style="font-size:11px;"></i>Winery · 55 min</div>
+            </div>
+            <div class="venue-body">
+              <div class="flex items-start justify-between">
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:13px;font-weight:700;color:#0F1C14;margin-bottom:2px;">Fall Creek Vineyards</p>
+                  <p style="font-size:10px;color:#6B8072;font-weight:500;">Driftwood · Award-winning Texas wines · Hill Country views</p>
+                </div>
+                <span class="tag" style="background:#F5EEFF;color:#7B3FA0;flex-shrink:0;margin-left:8px;">Add</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">Tasting $22/pp</span>
+                <span style="font-size:9px;font-weight:700;color:#C0390F;background:#FAECEA;padding:3px 7px;border-radius:6px;">Booking req.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="venue-card">
+            <div class="venue-img" style="height:80px;">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=70" />
+              <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.92);padding:3px 8px;border-radius:7px;font-size:9px;font-weight:700;color:#8B4513;display:flex;align-items:center;gap:4px;"><i class="ph-fill ph-brandy" style="font-size:11px;"></i>Distillery · 20 min</div>
+            </div>
+            <div class="venue-body">
+              <div class="flex items-start justify-between">
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:13px;font-weight:700;color:#0F1C14;margin-bottom:2px;">Deep Eddy Vodka</p>
+                  <p style="font-size:10px;color:#6B8072;font-weight:500;">Austin · Famous tasting room · Live music weekends</p>
+                </div>
+                <span class="tag" style="background:#FDF4E3;color:#C47F17;flex-shrink:0;margin-left:8px;">Add</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camping this weekend -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-tent text-brand-t2"></i>Camp This Weekend · Sites Available</span><span class="sec-more">See all</span></div>
+          <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-1 -mx-4 px-4">
+            <div class="camp-card">
+              <div style="height:80px;overflow:hidden;position:relative;">
+                <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=300&q=70" style="width:100%;height:100%;object-fit:cover;"/>
+                <div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;color:#1A6B45;display:flex;align-items:center;gap:3px;"><i class="ph-fill ph-tree-evergreen" style="font-size:10px;"></i>Rec.gov</div>
+                <div style="position:absolute;top:6px;right:6px;background:#1A6B45;color:#fff;padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;">3 left</div>
+              </div>
+              <div style="padding:8px 10px 10px;">
+                <p style="font-size:11px;font-weight:700;color:#0F1C14;line-height:1.3;">McKinney Falls SP</p>
+                <p style="font-size:9px;color:#6B8072;font-weight:500;margin-top:2px;">25 mi · Electric · $20/night</p>
+                <p style="font-size:9px;font-weight:700;color:#1A6B45;margin-top:2px;">Swimming · Kid-friendly</p>
+              </div>
+            </div>
+            <div class="camp-card">
+              <div style="height:80px;overflow:hidden;position:relative;">
+                <img src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=300&q=70" style="width:100%;height:100%;object-fit:cover;"/>
+                <div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;color:#C47F17;display:flex;align-items:center;gap:3px;"><i class="ph-fill ph-campfire" style="font-size:10px;"></i>Hipcamp</div>
+              </div>
+              <div style="padding:8px 10px 10px;">
+                <p style="font-size:11px;font-weight:700;color:#0F1C14;line-height:1.3;">Lone Star Family Farm</p>
+                <p style="font-size:9px;color:#6B8072;font-weight:500;margin-top:2px;">38 mi · Glamping · $65/night</p>
+                <p style="font-size:9px;font-weight:700;color:#1A6B45;margin-top:2px;">Pets OK · Animals on site</p>
+              </div>
+            </div>
+            <div class="camp-card">
+              <div style="height:80px;overflow:hidden;position:relative;">
+                <img src="https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?auto=format&fit=crop&w=300&q=70" style="width:100%;height:100%;object-fit:cover;"/>
+                <div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;color:#1A6B45;display:flex;align-items:center;gap:3px;"><i class="ph-fill ph-tree-evergreen" style="font-size:10px;"></i>NPS</div>
+                <div style="position:absolute;top:6px;right:6px;background:#C47F17;color:#fff;padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;">Fee-free Sat</div>
+              </div>
+              <div style="padding:8px 10px 10px;">
+                <p style="font-size:11px;font-weight:700;color:#0F1C14;line-height:1.3;">Pedernales Falls</p>
+                <p style="font-size:9px;color:#6B8072;font-weight:500;margin-top:2px;">50 mi · Tent · $20/night</p>
+                <p style="font-size:9px;font-weight:700;color:#C47F17;margin-top:2px;">Free entry Sat only</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trails & Hiking -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-mountains text-brand-accent"></i>Trails Near Austin</span><span class="sec-more">See all</span></div>
+          <div>
+            <div class="row">
+              <div class="row-icon" style="background:#E8F5EE;color:#1A6B45;">🌿</div>
+              <div class="row-body"><div class="row-title">Barton Creek Greenbelt</div><div class="row-sub" style="color:#1A6B45;font-weight:600;">Easy · 2.3 mi · Kid-friendly · Swimming holes · Quiet this AM</div></div>
+              <div class="row-right"><span class="tag" style="background:#EEF0EC;color:#2E4035;">AllTrails</span></div>
+            </div>
+            <div class="row">
+              <div class="row-icon" style="background:#EEF0EC;color:#2E4035;">🦋</div>
+              <div class="row-body"><div class="row-title">Balcones Canyonlands — Doeskin Ranch</div><div class="row-sub">Easy · 1.8 mi · Stroller OK · Wildflower season</div></div>
+              <div class="row-right"><span class="tag" style="background:#E8F5EE;color:#1A6B45;">NPS</span></div>
+            </div>
+            <div class="row">
+              <div class="row-icon" style="background:#FDF4E3;color:#C47F17;">⛰️</div>
+              <div class="row-body"><div class="row-title">Enchanted Rock Summit Trail</div><div class="row-sub">Moderate · 4.0 mi · Ages 7+ · 90 min drive</div></div>
+              <div class="row-right"><span class="tag" style="background:#EEF0EC;color:#2E4035;">Hiking Project</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deals (Groupon / Goldstar / Viator) -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-tag text-brand-gold"></i>Deals Near You</span><span class="sec-more">See all</span></div>
+
+          <div class="deal-row">
+            <div class="deal-icon" style="background:#F0FAF4;">🎳</div>
+            <div class="deal-body">
+              <div class="deal-source"><span class="deal-badge" style="background:#53A318;">Groupon</span><span class="deal-was">$28</span><span class="deal-now">$14</span></div>
+              <div class="deal-title">50% Off — Main Event Bowling & Games</div>
+              <div class="deal-sub">Family 4-pack · Ages 3+ · Valid this weekend</div>
+            </div>
+            <span class="deal-pct" style="background:#F0FAF4;color:#53A318;">50% off</span>
+          </div>
+
+          <div class="deal-row">
+            <div class="deal-icon" style="background:#FDF4E3;">🎭</div>
+            <div class="deal-body">
+              <div class="deal-source"><span class="deal-badge" style="background:#C47F17;">Goldstar</span><span class="deal-was">$32</span><span class="deal-now">$16</span></div>
+              <div class="deal-title">Cirque Dreams — Long Center</div>
+              <div class="deal-sub">Family show · Sat 2 PM · 4 tickets left</div>
+            </div>
+            <span class="deal-pct" style="background:#FDF4E3;color:#C47F17;">½ price</span>
+          </div>
+
+          <div class="deal-row">
+            <div class="deal-icon" style="background:#E8F0FB;">🛶</div>
+            <div class="deal-body">
+              <div class="deal-source"><span class="deal-badge" style="background:#185FA5;">Viator</span><span class="deal-now">$22/person</span></div>
+              <div class="deal-title">Lady Bird Lake Kayak Tour</div>
+              <div class="deal-sub">Ages 6+ · 2 hrs · Sat & Sun AM</div>
+            </div>
+            <span class="deal-pct" style="background:#E8F0FB;color:#185FA5;">Book</span>
+          </div>
+        </div>
+
+        <!-- Getaway deal -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-airplane-tilt text-brand-t3"></i>Getaway Deal · Mar 28–30 free</span></div>
+          <div onclick="triggerDealToast()" style="border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid #D8DDD6;">
+            <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d3b6e 100%);padding:14px;position:relative;overflow:hidden;">
+              <div style="position:absolute;inset:0;opacity:0.22;background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=60');background-size:cover;background-position:center;"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,42,74,0.85),rgba(13,59,110,0.6));"></div>
+              <div style="position:relative;z-index:1;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span style="background:#1A6B45;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;text-transform:uppercase;">38% Off</span>
+                  <span style="color:rgba(255,255,255,0.55);font-size:10px;font-weight:500;">4 hrs left</span>
+                </div>
+                <p style="color:#fff;font-size:16px;font-weight:700;font-family:'DM Serif Display',serif;margin-bottom:2px;">Nashville Weekend Getaway</p>
+                <p style="color:rgba(255,255,255,0.55);font-size:10px;font-weight:500;margin-bottom:10px;">Mar 28–30 · Round trip from Austin</p>
+                <div style="display:flex;align-items:baseline;gap:6px;">
+                  <span style="color:rgba(255,255,255,0.4);font-size:11px;text-decoration:line-through;">$305</span>
+                  <span style="color:#fff;font-size:20px;font-weight:700;">$189</span>
+                  <span style="color:rgba(255,255,255,0.55);font-size:11px;">/person</span>
+                </div>
+              </div>
+            </div>
+            <div style="background:#EEF0EC;border-top:1px solid #D8DDD6;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:10px;color:#6B8072;font-weight:500;">Your calendar is clear that weekend</span>
+              <span style="font-size:10px;color:#1A6B45;font-weight:700;display:flex;align-items:center;gap:3px;">View <i class="ph-bold ph-arrow-right" style="font-size:10px;"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- This weekend events -->
+        <div>
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-calendar text-brand-t3"></i>This Weekend in Austin</span><span class="sec-more">See all</span></div>
+          <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-1 -mx-4 px-4">
+            <div class="card" style="min-width:160px;">
+              <div class="card-img"><img src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=300&q=80" /><div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;color:#0F1C14;">Sat 9 AM</div></div>
+              <div class="card-body"><div class="card-title">SFC Farmers' Market</div><div class="card-sub">Republic Square · Free</div></div>
+            </div>
+            <div class="card" style="min-width:160px;">
+              <div class="card-img"><img src="https://images.unsplash.com/photo-1540039155732-6134b245c614?auto=format&fit=crop&w=300&q=80" /><div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;color:#0F1C14;">Sun 6 PM</div></div>
+              <div class="card-body"><div class="card-title">Live Music at Zilker</div><div class="card-sub">Hillside Theater · Free</div></div>
+            </div>
+            <div class="card" style="min-width:160px;">
+              <div class="card-img"><img src="https://images.unsplash.com/photo-1559139954-fc3d1fc3b716?auto=format&fit=crop&w=300&q=80" /><div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:5px;font-size:8px;font-weight:700;color:#0F1C14;">Sat All Day</div></div>
+              <div class="card-body"><div class="card-title">East Austin Studio Tour</div><div class="card-sub">Various venues · Free</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /px-4 -->
+    </div><!-- /tab-radar -->
+
+    <!-- ── TAB: TRIPS ──────────────────────────────────────── -->
+    <div id="tab-trips" class="flex-1 overflow-y-auto pb-28 hide-scrollbar animate-in hidden bg-brand-bg">
+
+      <div class="pg-header">
+        <div class="pg-title">Trips</div>
+        <div class="pg-sub"><i class="ph-fill ph-suitcase"></i>Your travel plans</div>
+      </div>
+
+      <div class="px-4 mt-4">
+
+        <!-- Smart offers -->
+        <div class="mb-6">
+          <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-tag text-brand-gold"></i>Smart Offers & Deals</span></div>
+
+          <!-- Chase Sapphire deal -->
+          <div style="background:linear-gradient(135deg,#0a2342 0%,#1a3a60 100%);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+            <div style="flex:1;min-width:0;padding-right:12px;">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;"><i class="ph-fill ph-credit-card" style="color:#93C5FD;font-size:13px;"></i><span style="font-size:9px;font-weight:700;color:#93C5FD;letter-spacing:0.06em;">CHASE SAPPHIRE</span></div>
+              <p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;">Disney Flights for 40k Pts</p>
+              <p style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:500;">Redemption match found for your Orlando wishlist</p>
+            </div>
+            <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ph-fill ph-airplane-tilt text-white text-[18px]"></i></div>
+          </div>
+
+          <!-- Employee discount -->
+          <div class="deal-row">
+            <div class="deal-icon" style="background:#EEF0EC;"><i class="ph-fill ph-briefcase text-brand-t3 text-[20px]"></i></div>
+            <div class="deal-body">
+              <div style="font-size:9px;font-weight:700;color:#6B8072;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;">HP Employee Rate</div>
+              <div class="deal-title">25% Off Avis Rentals</div>
+              <div class="deal-sub">Auto-applied to your Denver itinerary</div>
+            </div>
+            <span class="tag" style="background:#EEF0EC;color:#2E4035;">Applied</span>
+          </div>
+
+          <!-- Nashville deal -->
+          <div class="deal-row" style="background:#FDF4E3;border-color:rgba(196,127,23,0.3);">
+            <div class="deal-icon" style="background:rgba(196,127,23,0.15);">✈️</div>
+            <div class="deal-body">
+              <div class="deal-source"><span class="deal-badge" style="background:#C47F17;">Flight deal</span><span class="deal-was">$305</span><span class="deal-now">$189</span></div>
+              <div class="deal-title">Nashville Weekend · Mar 28–30</div>
+              <div class="deal-sub" style="color:#C47F17;font-weight:600;">Calendar is clear · 4 hrs left</div>
+            </div>
+            <span class="deal-pct" style="background:#FDF4E3;color:#C47F17;border:1px solid rgba(196,127,23,0.3);">38% off</span>
+          </div>
+        </div>
+
+        <!-- Itineraries header -->
+        <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-map-trifold text-brand-t3"></i>Itineraries</span><span class="sec-more">+ New trip</span></div>
+
+        <div onclick="openTripDetail()" class="trip-card active-trip">
+          <div class="flex items-start justify-between mb-2">
+            <span style="background:#E8F5EE;color:#1A6B45;font-size:9px;font-weight:700;padding:3px 8px;border-radius:7px;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:4px;"><i class="ph-bold ph-pencil-simple text-[10px]"></i>Planning</span>
+            <i class="ph-bold ph-dots-three text-brand-t3 text-[18px]"></i>
+          </div>
+          <p style="font-size:17px;font-weight:700;color:#0F1C14;font-family:'DM Serif Display',serif;">Trip to Denver</p>
+          <p style="font-size:11px;color:#6B8072;margin-top:4px;display:flex;align-items:center;gap:5px;font-weight:500;"><i class="ph-fill ph-calendar-blank text-[13px]"></i>Mar 23–26 · 4 days</p>
+          <div style="margin-top:10px;display:flex;gap:6px;">
+            <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">Flight booked</span>
+            <span style="font-size:9px;font-weight:700;color:#C0390F;background:#FAECEA;padding:3px 7px;border-radius:6px;">No hotel yet</span>
+            <span style="font-size:9px;font-weight:600;color:#6B8072;background:#EEF0EC;padding:3px 7px;border-radius:6px;">2 activities</span>
+          </div>
+        </div>
+
+        <div class="trip-card">
+          <div class="flex items-start justify-between mb-2">
+            <span style="background:#E8F5EE;color:#1A6B45;font-size:9px;font-weight:700;padding:3px 8px;border-radius:7px;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:4px;"><i class="ph-bold ph-check-circle text-[10px]"></i>Planned</span>
+            <i class="ph-bold ph-dots-three text-brand-t3 text-[18px]"></i>
+          </div>
+          <p style="font-size:17px;font-weight:700;color:#0F1C14;font-family:'DM Serif Display',serif;">Maldives Anniversary</p>
+          <p style="font-size:11px;color:#6B8072;margin-top:4px;display:flex;align-items:center;gap:5px;font-weight:500;"><i class="ph-fill ph-calendar-blank text-[13px]"></i>Nov 1–8 · 8 days</p>
+        </div>
+
+        <div class="trip-card" style="border-style:dashed;background:transparent;display:flex;align-items:center;justify-content:center;gap:8px;color:#6B8072;cursor:pointer;" onclick="openPlanModal()">
+          <i class="ph-bold ph-plus text-[16px]"></i>
+          <span style="font-size:12px;font-weight:700;">Plan a new trip</span>
+        </div>
+
+      </div>
+    </div><!-- /tab-trips -->
+
+    <!-- ── TAB: JOURNAL ────────────────────────────────────── -->
+    <div id="tab-journal" class="flex-1 overflow-y-auto pb-28 hide-scrollbar animate-in hidden bg-brand-bg">
+
+      <div class="pg-header">
+        <div class="pg-title">Memories</div>
+        <div class="pg-sub"><i class="ph-fill ph-book-open"></i>Your family's story</div>
+      </div>
+
+      <div class="px-4 mt-4">
+
+        <!-- New entry -->
+        <div style="background:#fff;border:1px solid #D8DDD6;border-radius:14px;padding:14px;margin-bottom:20px;">
+          <p style="font-size:10px;font-weight:700;color:#2E4035;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;display:flex;align-items:center;gap:5px;"><i class="ph-bold ph-pencil-simple"></i>New Entry</p>
+          <textarea placeholder="How was the weekend?" style="width:100%;background:#EEF0EC;border-radius:10px;border:none;outline:none;padding:10px 12px;font-size:13px;color:#0F1C14;font-family:'DM Sans',sans-serif;resize:none;height:72px;font-weight:500;display:block;"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+            <button style="background:#0F1C14;color:#fff;font-size:11px;font-weight:700;padding:8px 16px;border-radius:10px;border:none;cursor:pointer;">Save</button>
+          </div>
+        </div>
+
+        <!-- Timeline of entries -->
+        <div style="position:relative;padding-left:22px;border-left:2px solid #D8DDD6;margin-left:6px;">
+
+          <!-- Entry dot + entry -->
+          <div style="position:relative;margin-bottom:20px;">
+            <div style="position:absolute;left:-29px;top:2px;width:14px;height:14px;background:#1A6B45;border-radius:50%;ring:4px solid #F7F8F6;box-shadow:0 0 0 3px #F7F8F6;"></div>
+            <div class="jrnl-entry">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+                <span style="font-size:9px;font-weight:700;color:#6B8072;background:#EEF0EC;padding:3px 8px;border-radius:7px;display:flex;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:0.06em;"><i class="ph-bold ph-calendar text-[10px]"></i>Mar 16</span>
+                <span style="font-size:9px;font-weight:700;color:#1A6B45;background:#E8F5EE;padding:3px 8px;border-radius:7px;display:flex;align-items:center;gap:3px;"><i class="ph-fill ph-house text-[10px]"></i>Weekend in Austin</span>
+              </div>
+              <p style="font-size:13px;color:#0F1C14;font-weight:500;line-height:1.6;">Sky Zone was a hit — Jake didn't want to leave. Emma's painting class came out amazing. Wander found the quiet window at Barton Springs perfectly, no crowds at all.</p>
+              <div style="margin-top:10px;padding-top:8px;border-top:1px solid #EEF0EC;display:flex;align-items:center;gap:4px;">
+                <i class="ph-fill ph-sparkle text-brand-accent text-[11px]"></i>
+                <span style="font-size:10px;color:#6B8072;font-weight:500;">Wander learned: you love nature + quiet mornings</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:20px;">
+            <div style="position:absolute;left:-29px;top:2px;width:14px;height:14px;background:#1A6B45;border-radius:50%;box-shadow:0 0 0 3px #F7F8F6;"></div>
+            <div class="jrnl-entry">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+                <span style="font-size:9px;font-weight:700;color:#6B8072;background:#EEF0EC;padding:3px 8px;border-radius:7px;display:flex;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:0.06em;"><i class="ph-bold ph-calendar text-[10px]"></i>Mar 24</span>
+                <span style="font-size:9px;font-weight:700;color:#1A6B45;background:#E8F5EE;padding:3px 8px;border-radius:7px;">Trip to Denver</span>
+              </div>
+              <p style="font-size:13px;color:#0F1C14;font-weight:500;line-height:1.6;">The kids absolutely loved the Thinkery today. Glad we moved it to the afternoon, it was much quieter. We ended up staying for almost 3 hours!</p>
+            </div>
+          </div>
+
+          <div style="position:relative;">
+            <div style="position:absolute;left:-29px;top:2px;width:14px;height:14px;background:#6B8072;border-radius:50%;box-shadow:0 0 0 3px #F7F8F6;"></div>
+            <div class="jrnl-entry">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+                <span style="font-size:9px;font-weight:700;color:#6B8072;background:#EEF0EC;padding:3px 8px;border-radius:7px;display:flex;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:0.06em;"><i class="ph-bold ph-calendar text-[10px]"></i>Mar 23</span>
+                <span style="font-size:9px;font-weight:700;color:#1A6B45;background:#E8F5EE;padding:3px 8px;border-radius:7px;">Trip to Denver</span>
+              </div>
+              <p style="font-size:13px;color:#0F1C14;font-weight:500;line-height:1.6;">Flight landed on time. Denver is beautiful. Checked into the hotel and resting up before BBQ tonight.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:center;gap:5px;padding:20px 0;color:#6B8072;">
+          <i class="ph-bold ph-arrows-clockwise text-[13px]"></i>
+          <span style="font-size:10px;font-weight:600;">Synced with Apple Journal</span>
+        </div>
+
+      </div>
+    </div><!-- /tab-journal -->
+
+    <!-- ── BOTTOM NAV ─────────────────────────────────────── -->
+    <button onclick="openPlanModal()" style="position:absolute;bottom:80px;right:16px;width:50px;height:50px;background:#1A6B45;color:#fff;border-radius:16px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(26,107,69,0.3);z-index:30;">
+      <i class="ph-bold ph-plus text-[22px]"></i>
+    </button>
+
+    <div style="position:absolute;bottom:0;width:100%;background:rgba(247,248,246,0.96);backdrop-filter:blur(12px);border-top:1px solid #D8DDD6;padding:12px 0 28px;display:flex;justify-content:space-around;align-items:center;z-index:40;">
+      <button class="nav-btn active" onclick="switchTab('home')" id="nav-btn-home"><i id="nav-icon-home" class="ph-fill ph-calendar-blank text-[22px]"></i><span>Timeline</span></button>
+      <button class="nav-btn" onclick="switchTab('radar')" id="nav-btn-radar"><i id="nav-icon-radar" class="ph ph-compass text-[22px]"></i><span>Radar</span></button>
+      <button class="nav-btn" onclick="switchTab('trips')" id="nav-btn-trips"><i id="nav-icon-trips" class="ph ph-suitcase text-[22px]"></i><span>Trips</span></button>
+      <button class="nav-btn" onclick="switchTab('journal')" id="nav-btn-journal"><i id="nav-icon-journal" class="ph ph-book-open text-[22px]"></i><span>Journal</span></button>
+    </div>
+
+  </div><!-- /main-app -->
+
+  <!-- ════════════════════════════════════════════════════
+       PLAN MODAL
+  ═════════════════════════════════════════════════════ -->
+  <div id="plan-modal" style="position:absolute;inset:0;background:rgba(15,28,20,0.45);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:flex-end;opacity:0;pointer-events:none;" class="tc">
+    <div id="plan-modal-content" style="background:#F7F8F6;width:100%;height:72%;border-radius:28px 28px 0 0;padding:24px;transform:translateY(100%);display:flex;flex-direction:column;" class="tc">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <p style="font-size:20px;font-weight:700;color:#0F1C14;font-family:'DM Serif Display',serif;">What are we planning?</p>
+        <button onclick="closePlanModal()" style="width:30px;height:30px;background:#EEF0EC;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B8072;"><i class="ph-bold ph-x text-[13px]"></i></button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        <button style="background:#fff;border:1px solid #D8DDD6;border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:8px;" onmouseover="this.style.borderColor='#1A6B45'" onmouseout="this.style.borderColor='#D8DDD6'">
+          <div style="width:44px;height:44px;background:#EEF0EC;border-radius:13px;display:flex;align-items:center;justify-content:center;"><i class="ph-fill ph-airplane-tilt text-brand-t2 text-[20px]"></i></div>
+          <span style="font-size:12px;font-weight:700;color:#0F1C14;">Vacation</span>
+        </button>
+        <button style="background:#fff;border:1px solid #D8DDD6;border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:8px;" onmouseover="this.style.borderColor='#1A6B45'" onmouseout="this.style.borderColor='#D8DDD6'">
+          <div style="width:44px;height:44px;background:#EEF0EC;border-radius:13px;display:flex;align-items:center;justify-content:center;"><i class="ph-fill ph-tent text-brand-t2 text-[20px]"></i></div>
+          <span style="font-size:12px;font-weight:700;color:#0F1C14;">Camping</span>
+        </button>
+        <button style="background:#fff;border:1px solid #D8DDD6;border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:8px;" onmouseover="this.style.borderColor='#1A6B45'" onmouseout="this.style.borderColor='#D8DDD6'">
+          <div style="width:44px;height:44px;background:#EEF0EC;border-radius:13px;display:flex;align-items:center;justify-content:center;"><i class="ph-fill ph-ticket text-brand-t2 text-[20px]"></i></div>
+          <span style="font-size:12px;font-weight:700;color:#0F1C14;">Event</span>
+        </button>
+        <button style="background:#fff;border:1px solid #D8DDD6;border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:8px;" onmouseover="this.style.borderColor='#1A6B45'" onmouseout="this.style.borderColor='#D8DDD6'">
+          <div style="width:44px;height:44px;background:#EEF0EC;border-radius:13px;display:flex;align-items:center;justify-content:center;"><i class="ph-fill ph-wine text-brand-t2 text-[20px]"></i></div>
+          <span style="font-size:12px;font-weight:700;color:#0F1C14;">Day Date</span>
+        </button>
+      </div>
+      <div style="margin-top:auto;position:relative;">
+        <input type="text" placeholder="Or tell me: 'Camping trip for 4 near Austin'" style="width:100%;background:#fff;border:1px solid #D8DDD6;border-radius:14px;padding:14px 50px 14px 16px;font-size:13px;font-weight:500;color:#0F1C14;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box;" />
+        <button style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;background:#1A6B45;color:#fff;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          <i class="ph-bold ph-paper-plane-right text-[16px]"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       TRIP DETAIL SCREEN
+  ═════════════════════════════════════════════════════ -->
+  <div id="trip-detail-screen" style="position:absolute;inset:0;background:#F7F8F6;z-index:80;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease-in-out;overflow-y:auto;" class="hide-scrollbar">
+
+    <div style="background:#F7F8F6;padding:52px 16px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;border-bottom:1px solid #D8DDD6;">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button onclick="closeTripDetail()" style="width:38px;height:38px;border-radius:11px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0F1C14;"><i class="ph-bold ph-caret-left text-[20px]"></i></button>
+        <button onclick="goHomeFromTrip()" style="width:38px;height:38px;border-radius:11px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0F1C14;"><i class="ph-fill ph-house text-[17px]"></i></button>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-size:14px;font-weight:700;color:#0F1C14;font-family:'DM Serif Display',serif;">Trip to Denver</p>
+        <p style="font-size:10px;color:#6B8072;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Mar 23–26</p>
+      </div>
+      <button style="width:38px;height:38px;border-radius:11px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0F1C14;"><i class="ph-bold ph-export text-[18px]"></i></button>
+    </div>
+
+    <div class="px-4 pb-12" style="padding-top:16px;">
+
+      <!-- Explore section -->
+      <div class="mb-5">
+        <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-compass text-brand-t3"></i>Explore Denver</span><span class="sec-more">See all</span></div>
+        <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-1 -mx-4 px-4">
+          <div class="card" style="min-width:150px;">
+            <div class="card-img"><img src="https://images.unsplash.com/photo-1546156929-a4c0ac411f47?auto=format&fit=crop&w=300&q=80"/></div>
+            <div class="card-body"><div class="card-title">Denver with Kids</div><div class="card-sub">by Erin Nicole</div></div>
+          </div>
+          <div class="card" style="min-width:150px;">
+            <div class="card-img"><img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=300&q=80"/></div>
+            <div class="card-body"><div class="card-title">Best Restaurants</div><div class="card-sub">Google Experts</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logistics -->
+      <div class="mb-5">
+        <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-briefcase text-brand-t3"></i>Logistics & Budget</span></div>
+        <div style="background:#fff;border:1px solid #D8DDD6;border-radius:14px;overflow:hidden;">
+          <div class="row" style="margin:0;padding:12px 14px;border-radius:0;">
+            <div style="width:32px;height:32px;background:#EEF0EC;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ph-fill ph-airplane-tilt text-brand-t2 text-[15px]"></i></div>
+            <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:#0F1C14;">Flight</p></div>
+            <span style="font-size:10px;font-weight:700;color:#0F1C14;background:#EEF0EC;padding:3px 8px;border-radius:7px;">UA452 · Mar 23</span>
+          </div>
+          <div class="row" style="margin:0;padding:12px 14px;border-radius:0;">
+            <div style="width:32px;height:32px;background:#FAECEA;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ph-fill ph-bed text-brand-alert text-[15px]"></i></div>
+            <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:#0F1C14;">Lodging</p><p style="font-size:10px;color:#C0390F;font-weight:600;margin-top:1px;">No hotel booked for Mar 23–26</p></div>
+            <button style="font-size:10px;font-weight:700;color:#fff;background:#C0390F;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;">Book</button>
+          </div>
+          <div class="row" style="margin:0;padding:12px 14px;border-radius:0;border-bottom:none;">
+            <div style="width:32px;height:32px;background:#EEF0EC;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ph-fill ph-car text-brand-t2 text-[15px]"></i></div>
+            <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:#0F1C14;">Rental Car</p><p style="font-size:10px;color:#1A6B45;font-weight:600;margin-top:1px;">25% off with HP employee rate</p></div>
+            <span style="font-size:10px;font-weight:700;color:#1A6B45;background:#E8F5EE;padding:3px 8px;border-radius:7px;">Applied</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget tracker -->
+      <div class="mb-5">
+        <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-wallet text-brand-t3"></i>Budget</span><span style="font-size:10px;color:#6B8072;font-weight:600;">$180 of $1,000</span></div>
+        <div style="width:100%;height:8px;background:#EEF0EC;border-radius:100px;overflow:hidden;margin-bottom:12px;border:1px solid #D8DDD6;">
+          <div style="width:18%;height:100%;background:#1A6B45;border-radius:100px;"></div>
+        </div>
+        <div>
+          <div class="row" style="margin:0;">
+            <div class="row-icon" style="background:#EEF0EC;color:#6B8072;width:30px;height:30px;border-radius:8px;font-size:14px;">🍽</div>
+            <div class="row-body"><div style="font-size:12px;font-weight:600;color:#0F1C14;">Food & Dining</div></div>
+            <span style="font-size:13px;font-weight:700;color:#0F1C14;">$180.00</span>
+          </div>
+          <div class="row" style="margin:0;opacity:0.5;">
+            <div class="row-icon" style="background:#EEF0EC;color:#6B8072;width:30px;height:30px;border-radius:8px;font-size:14px;">✈️</div>
+            <div class="row-body"><div style="font-size:12px;font-weight:600;color:#0F1C14;">Flights (Pending)</div></div>
+            <span style="font-size:13px;font-weight:700;color:#6B8072;">$0.00</span>
+          </div>
+        </div>
+        <button style="width:100%;margin-top:10px;padding:11px;border-radius:11px;border:1px solid #D8DDD6;background:#fff;color:#2E4035;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Log an expense</button>
+      </div>
+
+      <!-- Places -->
+      <div>
+        <div class="sec-hd"><span class="sec-title"><i class="ph-fill ph-map-pin text-brand-t3"></i>Places to Visit</span><span class="sec-more">+ Add</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:#fff;border:1px solid #D8DDD6;color:#0F1C14;font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;display:flex;align-items:center;gap:5px;cursor:pointer;"><i class="ph-fill ph-leaf" style="color:#1A6B45;font-size:14px;"></i>Denver Botanic Gardens</span>
+          <span style="background:#fff;border:1px solid #D8DDD6;color:#0F1C14;font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;display:flex;align-items:center;gap:5px;cursor:pointer;"><i class="ph-fill ph-baseball" style="color:#C0390F;font-size:14px;"></i>Coors Field</span>
+          <span style="background:#fff;border:1px solid #D8DDD6;color:#0F1C14;font-size:11px;font-weight:700;padding:7px 12px;border-radius:10px;display:flex;align-items:center;gap:5px;cursor:pointer;"><i class="ph-fill ph-buildings" style="color:#185FA5;font-size:14px;"></i>16th Street Mall</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /phone shell -->
+
+<script>
+// ── Login ──────────────────────────────────────────────
+function login(){
+  const s=document.getElementById('auth-screen');
+  s.style.opacity='0';s.style.pointerEvents='none';
+  setTimeout(()=>showToast('toast-crowd'),1200);
+  setTimeout(()=>showToast('toast-deal'),5800);
+}
+
+// ── Tab switching ──────────────────────────────────────
+const TABS=['home','radar','trips','journal'];
+function switchTab(id){
+  TABS.forEach(t=>{
+    const tab=document.getElementById('tab-'+t);
+    const btn=document.getElementById('nav-btn-'+t);
+    const icon=document.getElementById('nav-icon-'+t);
+    tab.classList.add('hidden');tab.classList.remove('block');
+    btn.classList.remove('active');
+    icon.className=icon.className.replace('ph-fill','ph');
+  });
+  const tab=document.getElementById('tab-'+id);
+  tab.classList.remove('hidden');tab.classList.add('block');
+  const btn=document.getElementById('nav-btn-'+id);
+  btn.classList.add('active');
+  const icon=document.getElementById('nav-icon-'+id);
+  icon.className=icon.className.replace(/\bph\b/,'ph-fill');
+}
+
+// ── Timeline list/map toggle ───────────────────────────
+function tlView(v){
+  const list=document.getElementById('view-list');
+  const map=document.getElementById('view-map');
+  const lb=document.getElementById('tl-list-btn');
+  const mb=document.getElementById('tl-map-btn');
+  if(v==='list'){
+    list.style.display='block';map.style.display='none';
+    lb.style.background='#fff';lb.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)';lb.style.color='#0F1C14';
+    mb.style.background='transparent';mb.style.boxShadow='none';mb.style.color='#6B8072';
+  } else {
+    list.style.display='none';map.style.display='block';
+    mb.style.background='#fff';mb.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)';mb.style.color='#0F1C14';
+    lb.style.background='transparent';lb.style.boxShadow='none';lb.style.color='#6B8072';
+  }
+}
+
+// ── Pill filter ────────────────────────────────────────
+function setPill(el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Plan modal ─────────────────────────────────────────
+function openPlanModal(){
+  const m=document.getElementById('plan-modal');
+  const c=document.getElementById('plan-modal-content');
+  m.style.opacity='1';m.style.pointerEvents='all';
+  c.style.transform='translateY(0)';
+}
+function closePlanModal(){
+  const m=document.getElementById('plan-modal');
+  const c=document.getElementById('plan-modal-content');
+  c.style.transform='translateY(100%)';
+  setTimeout(()=>{m.style.opacity='0';m.style.pointerEvents='none';},300);
+}
+
+// ── Trip detail ────────────────────────────────────────
+function openTripDetail(){document.getElementById('trip-detail-screen').style.transform='translateX(0)';}
+function closeTripDetail(){document.getElementById('trip-detail-screen').style.transform='translateX(100%)';}
+function goHomeFromTrip(){closeTripDetail();switchTab('home');}
+
+// ── Toast ──────────────────────────────────────────────
+function showToast(id){
+  const el=document.getElementById(id);
+  el.classList.remove('hidden');
+  setTimeout(()=>el.classList.add('show'),10);
+}
+function closeToast(id){
+  const el=document.getElementById(id);
+  el.classList.remove('show');
+  setTimeout(()=>el.classList.add('hidden'),400);
+}
+
+// ── Weekend Brief dismiss ──────────────────────────────
+function dismissBrief(){
+  const c=document.getElementById('brief-card');
+  c.style.transition='all 0.35s cubic-bezier(0.16,1,0.3,1)';
+  c.style.opacity='0';c.style.transform='translateY(-6px)';
+  c.style.maxHeight=c.offsetHeight+'px';
+  setTimeout(()=>{c.style.maxHeight='0';c.style.marginBottom='0';c.style.overflow='hidden';},200);
+  setTimeout(()=>c.remove(),500);
+}
+
+// ── Learning nudge dismiss ─────────────────────────────
+function dismissNudge(){
+  const n=document.getElementById('learn-nudge');
+  if(n){n.style.opacity='0';setTimeout(()=>n.remove(),300);}
+}
+
+// ── Reschedule ─────────────────────────────────────────
+function acceptReschedule(){
+  document.getElementById('tc-actions').classList.add('hidden');
+  const ok=document.getElementById('tc-ok');
+  ok.classList.remove('hidden');ok.classList.add('flex');
+  const th=document.getElementById('museum-time-h');
+  const ta=document.getElementById('museum-time-ap');
+  if(th){th.textContent='2:00';th.style.color='#C47F17';}
+  if(ta)ta.textContent='PM';
+  const mb=document.getElementById('museum-block');
+  if(mb){mb.innerHTML='<div class="tl-name" style="color:#0F6E56;">ABC Kite Festival</div><div class="tl-detail" style="color:#1A6B45;font-weight:600;"><i class="ph-fill ph-clock-counter-clockwise" style="font-size:10px;margin-right:3px;"></i>Moved to avoid peak crowds · Zilker Park</div>';}
+  const mc=document.getElementById('museum-container');
+  if(mc){mc.classList.remove('tl-row-active');mc.style.background='#FFFAEB';}
+  setTimeout(()=>closeToast('toast-crowd'),2200);
+}
+
+// ── Deal accept ────────────────────────────────────────
+function acceptDeal(){
+  document.getElementById('td-actions').classList.add('hidden');
+  const ok=document.getElementById('td-ok');
+  ok.classList.remove('hidden');ok.classList.add('flex');
+  setTimeout(()=>closeToast('toast-deal'),2200);
+}
+function triggerDealToast(){showToast('toast-deal');switchTab('home');}
+</script>
 </body>
 </html>
